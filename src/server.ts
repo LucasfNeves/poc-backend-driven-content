@@ -1,7 +1,22 @@
+import "dotenv/config";
 import Fastify from "fastify";
 
+const isDevelopment = process.env.NODE_ENV === "development";
+
 const fastify = Fastify({
-  logger: true,
+  logger: isDevelopment
+    ? {
+        transport: {
+          target: "pino-pretty",
+          options: {
+            translateTime: "HH:MM:ss",
+            ignore: "pid,hostname",
+            colorize: true,
+            singleLine: true,
+          },
+        },
+      }
+    : true,
 });
 
 fastify.get("/health", async () => {
@@ -10,8 +25,9 @@ fastify.get("/health", async () => {
 
 const start = async () => {
   try {
+    const port = Number(process.env.PORT || process.env.API_PORT) || 3000;
     await fastify.listen({
-      port: Number(process.env.PORT) || 3000,
+      port,
       host: "0.0.0.0",
     });
   } catch (err) {
