@@ -1,4 +1,4 @@
-.PHONY: docker-up docker-down docker-rebuild docker-logs docker-logs-db docker-shell docker-shell-db docker-migrate docker-seed docker-clean
+.PHONY: docker-up docker-down docker-rebuild docker-logs docker-logs-db docker-shell docker-shell-db docker-migrate docker-migrate-create docker-seed docker-clean
 
 docker-up:
 	docker-compose --env-file .env -f docker/docker-compose.yml up -d
@@ -23,6 +23,9 @@ docker-shell-db:
 
 docker-migrate:
 	docker-compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it api npx prisma migrate dev
+
+docker-migrate-create:
+	docker exec -it api npx prisma migrate dev --name $(name)
 
 docker-seed:
 	docker-compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it api npx prisma db seed
