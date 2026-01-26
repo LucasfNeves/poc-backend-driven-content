@@ -1,17 +1,13 @@
 FROM node:20-alpine
 
-RUN npm install -g pnpm
-
 WORKDIR /app
 
-COPY ../backend/package.json ../backend/pnpm-lock.yaml ./
+COPY . .
 
-RUN pnpm install --frozen-lockfile
+RUN chown -R node:node /app
 
-COPY ../backend .
-
-RUN pnpm prisma generate
+USER node
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev"]
+CMD ["npm", "run", "dev"]
