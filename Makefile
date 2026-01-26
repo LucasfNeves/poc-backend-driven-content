@@ -1,28 +1,31 @@
-.PHONY: up down logs shell migrate seed sync clean rebuild
+.PHONY: docker-up docker-down docker-rebuild docker-logs docker-logs-db docker-shell docker-shell-db docker-migrate docker-seed docker-clean
 
-up:
-	cd docker && docker-compose up -d
+docker-up:
+	docker-compose --env-file .env -f docker/docker-compose.yml up -d
 
-down:
-	cd docker && docker-compose down
+docker-down:
+	docker-compose --env-file .env -f docker/docker-compose.yml down
 
-logs:
-	cd docker && docker-compose logs -f backend
+docker-rebuild:
+	docker-compose --env-file .env -f docker/docker-compose.yml up -d --build
 
-shell:
-	cd docker && docker-compose exec backend sh
+docker-logs:
+	docker-compose --env-file .env -f docker/docker-compose.yml logs -f backend
 
-migrate:
-	cd docker && docker-compose exec backend pnpm prisma migrate dev
+docker-logs-db:
+	docker-compose --env-file .env -f docker/docker-compose.yml logs -f postgres
 
-seed:
-	cd docker && docker-compose exec backend pnpm prisma db seed
+docker-shell:
+	docker-compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it api sh
 
-sync:
-	cd docker && docker-compose exec backend pnpm sync import
+docker-shell-db:
+	docker-compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it db psql -U postgres -d dynamic_screens
 
-rebuild:
-	cd docker && docker-compose up -d --build
+docker-migrate:
+	docker-compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it api npx prisma migrate dev
 
-clean:
-	cd docker && docker-compose down -v
+docker-seed:
+	docker-compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it api npx prisma db seed
+
+docker-clean:
+	docker-compose --env-file .env -f docker/docker-compose.yml down -v
