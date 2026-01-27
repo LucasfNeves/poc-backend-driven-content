@@ -1,7 +1,7 @@
-export interface IRequest {
-  body: Record<string, unknown>;
-  params: Record<string, string>;
-  query: Record<string, string>;
+export interface IRequest<TBody = unknown, TParams = unknown, TQuery = unknown> {
+  body?: TBody;
+  params?: TParams;
+  query?: TQuery;
 }
 
 export interface IResponse {
@@ -9,6 +9,6 @@ export interface IResponse {
   body: Record<string, unknown>;
 }
 
-export interface IController {
-  handle: (request: IRequest) => Promise<IResponse>;
+export interface IController<TBody = unknown, TParams = unknown, TQuery = unknown> {
+  handle: (request: IRequest<TBody, TParams, TQuery>) => Promise<IResponse>;
 }
