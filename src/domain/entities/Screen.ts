@@ -1,5 +1,4 @@
 import { ScreenValidationError } from '@/domain/errors';
-import { JsonValue } from '@prisma/client/runtime/client';
 
 export interface ScreenConfig {
   [key: string]: unknown;
@@ -8,7 +7,7 @@ export interface ScreenConfig {
 interface ScreenProps {
   id: string;
   name: string;
-  config: ScreenConfig | JsonValue;
+  config: ScreenConfig | unknown;
   version: number;
   isActive: boolean;
   createdAt: Date;
