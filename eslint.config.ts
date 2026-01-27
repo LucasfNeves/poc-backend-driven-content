@@ -9,6 +9,15 @@ export default defineConfig([
     plugins: { js },
     extends: ['js/recommended'],
     languageOptions: { globals: globals.node },
+    rules: {
+      indent: ['error', 2],
+    },
   },
-  tseslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ['**/*.ts'],
+    rules: {
+      indent: ['error', 2],
+    },
+  },
 ]);
