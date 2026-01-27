@@ -21,6 +21,56 @@ export const noContent = (): IResponse => {
   };
 };
 
+export const badRequest = (message: string): IResponse => {
+  return {
+    statusCode: 400,
+    body: {
+      error: 'Bad Request',
+      message,
+    },
+  };
+};
+
+export const notFound = (message: string): IResponse => {
+  return {
+    statusCode: 404,
+    body: {
+      error: 'Not Found',
+      message,
+    },
+  };
+};
+
+export const unauthorized = (message: string = 'Unauthorized'): IResponse => {
+  return {
+    statusCode: 401,
+    body: {
+      error: 'Unauthorized',
+      message,
+    },
+  };
+};
+
+export const forbidden = (message: string = 'Forbidden'): IResponse => {
+  return {
+    statusCode: 403,
+    body: {
+      error: 'Forbidden',
+      message,
+    },
+  };
+};
+
+export const conflict = (message: string): IResponse => {
+  return {
+    statusCode: 409,
+    body: {
+      error: 'Conflict',
+      message,
+    },
+  };
+};
+
 export const serverError = (message: string = 'An unexpected error occurred'): IResponse => {
   return {
     statusCode: 500,
@@ -35,5 +85,10 @@ export const ResponseHelper = {
   ok,
   created,
   noContent,
+  badRequest,
+  notFound,
+  unauthorized,
+  forbidden,
+  conflict,
   serverError,
 };
