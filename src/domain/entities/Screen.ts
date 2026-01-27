@@ -1,3 +1,5 @@
+import { ScreenValidationError } from '@/domain/errors';
+
 export interface ScreenConfig {
   [key: string]: unknown;
 }
@@ -19,15 +21,15 @@ export class Screen {
 
   private validate(): void {
     if (!this.props.name || this.props.name.trim().length === 0) {
-      throw new Error('Screen name cannot be empty');
+      throw new ScreenValidationError('name', 'cannot be empty');
     }
 
     if (this.props.version < 1) {
-      throw new Error('Screen version must be at least 1');
+      throw new ScreenValidationError('version', 'must be at least 1');
     }
 
     if (!this.props.config || typeof this.props.config !== 'object') {
-      throw new Error('Screen config must be a valid object');
+      throw new ScreenValidationError('config', 'must be a valid object');
     }
   }
 
