@@ -1,4 +1,5 @@
 import { ScreenValidationError } from '@/domain/errors';
+import { JsonValue } from '@prisma/client/runtime/client';
 
 export interface ScreenConfig {
   [key: string]: unknown;
@@ -7,7 +8,7 @@ export interface ScreenConfig {
 interface ScreenProps {
   id: string;
   name: string;
-  config: ScreenConfig;
+  config: ScreenConfig | JsonValue;
   version: number;
   isActive: boolean;
   createdAt: Date;
@@ -37,12 +38,16 @@ export class Screen {
     return new Screen({
       id: data.id,
       name: data.name,
-      config: data.config,
+      config: data.config || {},
       version: data.version,
       isActive: data.isActive,
       createdAt: new Date(data.createdAt),
       updatedAt: new Date(data.updatedAt),
     });
+  }
+
+  static create(data: ScreenProps): Screen {
+    return new Screen(data);
   }
 
   activate(): Screen {
@@ -87,7 +92,7 @@ export class Screen {
   }
 
   get config(): ScreenConfig {
-    return this.props.config;
+    return this.props.config as ScreenConfig;
   }
 
   get version(): number {
