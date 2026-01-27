@@ -31,15 +31,7 @@ export class Screen {
     }
   }
 
-  static fromPersistence(data: {
-    id: string;
-    name: string;
-    config: ScreenConfig;
-    version: number;
-    isActive: boolean;
-    createdAt: Date | string;
-    updatedAt: Date | string;
-  }): Screen {
+  static fromPersistence(data: ScreenProps): Screen {
     return new Screen({
       id: data.id,
       name: data.name,
