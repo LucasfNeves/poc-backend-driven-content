@@ -1,5 +1,5 @@
 import { Screen } from '@/domain/entities/Screen';
-import { IScreenRepository } from '@/domain/repositories/IScreenRepository';
+import { IScreenRepository } from '@/domain/interfaces/IScreenRepository';
 import { ValidationHelper } from '@/shared/helpers/ValidationHelper';
 import { NotFoundError } from '@/shared/errors/AppErrors';
 
