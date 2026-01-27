@@ -1,4 +1,4 @@
-import { Screen } from '@prisma/client';
+import { Screen } from '@/domain/entities/Screen';
 
 export interface IScreenRepository {
   save(screen: Screen): Promise<void>;
