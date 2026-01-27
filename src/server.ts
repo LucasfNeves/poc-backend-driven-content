@@ -27,10 +27,10 @@ fastify.get('/health', async () => {
   return { status: 'ok' };
 });
 
-fastify.register(screenRoutes);
-
 const start = async () => {
   try {
+    await fastify.register(screenRoutes);
+
     const port = Number(process.env.PORT || process.env.API_PORT) || 3000;
     await fastify.listen({
       port,
