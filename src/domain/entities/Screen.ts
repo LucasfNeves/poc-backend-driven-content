@@ -16,10 +16,7 @@ interface ScreenProps {
 }
 
 export class Screen {
-  private constructor(private readonly props: ScreenProps) {
-    this.validate();
-  }
-
+  private constructor(private readonly props: ScreenProps) {}
   private validate(): void {
     if (!this.props.name || this.props.name.trim().length === 0) {
       throw new ScreenValidationError('name', 'cannot be empty');
@@ -46,8 +43,19 @@ export class Screen {
     });
   }
 
-  static create(data: ScreenProps): Screen {
-    return new Screen(data);
+  static create(data: Omit<ScreenProps, 'id' | 'createdAt' | 'updatedAt'>): Screen {
+    const screen = new Screen({
+      id: crypto.randomUUID(),
+      name: data.name,
+      config: data.config,
+      version: data.version,
+      isActive: data.isActive,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    screen.validate();
+    return screen;
   }
 
   activate(): Screen {
