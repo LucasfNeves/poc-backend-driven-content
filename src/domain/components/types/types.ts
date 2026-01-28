@@ -47,7 +47,7 @@ export interface ScaffoldComponent extends BaseComponent {
   type: 'scaffold';
   backgroundColor?: string;
   appBar?: AppBarComponent;
-  body?: BaseComponent;
+  body?: unknown;
 }
 
 export type Component =
