@@ -1,5 +1,6 @@
 import { validateComponent } from '../components/schemas/componentSchema';
 import { Component as ComponentType } from '../components/types/types';
+import { InputJsonValue } from '@prisma/client/runtime/client';
 
 export interface ComponentMetadata {
   id: string;
@@ -47,6 +48,10 @@ export class Component {
     return { ...this.props };
   }
 
+  toPersistence(): InputJsonValue {
+    return this.props.component as unknown as InputJsonValue;
+  }
+
   get id(): string {
     return this.props.id;
   }
@@ -65,5 +70,13 @@ export class Component {
 
   get isActive(): boolean {
     return this.props.isActive;
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this.props.updatedAt;
   }
 }
