@@ -1,26 +1,9 @@
 import { ScreenValidationError } from '@/domain/errors';
-
-export interface ScreenConfig {
-  [key: string]: unknown;
-}
-
-interface ScreenProps {
-  id: string;
-  name: string;
-  config: ScreenConfig | unknown;
-  version: number;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { CreateScreenData, ScreenConfig, ScreenPersistenceData } from './types/interfaces';
 
 export class Screen {
-  private constructor(private readonly props: ScreenProps) {}
+  private constructor(private readonly props: ScreenPersistenceData) {}
   private validate(): void {
-    if (!this.props.name || this.props.name.trim().length === 0) {
-      throw new ScreenValidationError('name', 'cannot be empty');
-    }
-
     if (this.props.version < 1) {
       throw new ScreenValidationError('version', 'must be at least 1');
     }
@@ -30,7 +13,7 @@ export class Screen {
     }
   }
 
-  static fromPersistence(data: ScreenProps): Screen {
+  static fromPersistence(data: ScreenPersistenceData): Screen {
     return new Screen({
       id: data.id,
       name: data.name,
@@ -42,7 +25,7 @@ export class Screen {
     });
   }
 
-  static create(data: Omit<ScreenProps, 'id' | 'createdAt' | 'updatedAt'>): Screen {
+  static create(data: CreateScreenData): Screen {
     const screen = new Screen({
       id: crypto.randomUUID(),
       name: data.name,
@@ -82,8 +65,10 @@ export class Screen {
     });
   }
 
-  toJSON(): ScreenProps {
-    return { ...this.props };
+  toJSON(): ScreenPersistenceData {
+    return {
+      ...this.props,
+    };
   }
 
   equals(other: Screen): boolean {
@@ -95,7 +80,7 @@ export class Screen {
   }
 
   get name(): string {
-    return this.props.name;
+    return this.props.name.toString();
   }
 
   get config(): ScreenConfig {
