@@ -1,6 +1,7 @@
 import { Screen, ScreenConfig } from '@/domain/entities/Screen';
 import { ConflictError } from '@/domain/errors';
 import { IScreenRepository } from '@/domain/interfaces/IScreenRepository';
+import { ScreenName } from '@/domain/value-objects';
 
 interface SaveScreenDTO {
   name: string;
@@ -12,13 +13,15 @@ export class SaveScreenUseCase {
   constructor(private readonly screenRepository: IScreenRepository) {}
 
   async execute(data: SaveScreenDTO): Promise<Screen> {
-    const existingScreen = await this.screenRepository.findByName(data.name);
+    const screenName = ScreenName.create(data.name);
+
+    const existingScreen = await this.screenRepository.findByName(screenName.toString());
     if (existingScreen) {
-      throw new ConflictError('Screen', 'name', data.name);
+      throw new ConflictError('Screen', 'name', screenName.toString());
     }
 
     const screen = Screen.create({
-      name: data.name,
+      name: screenName,
       config: data.config,
       version: 1,
       isActive: data.isActive ?? true,
