@@ -1,21 +1,21 @@
 import { ZodError } from 'zod';
 import { IController, IRequest, IResponse } from '@/domain/interfaces/IController';
-import { GetScreenByIdUseCase } from '@/application/use-cases/GetScreenByIdUseCase';
+import { GetScreenByName } from '../use-cases/GetScreenByName';
 import { ResponseHelper } from '@/shared/helpers/ResponseHelper';
 import {
-  getScreenByIdParamsSchema,
-  GetScreenByIdParamsDTO,
-} from '@/domain/schemas/GetScreenByIdSchema';
+  getScreenByNameParamsSchema,
+  GetScreenByNameParamsDTO,
+} from '@/domain/schemas/GetScreenByNameSchema';
 import { NotFoundError } from '@/domain/errors';
 
-export class GetScreenByIdController implements IController<unknown, GetScreenByIdParamsDTO> {
-  constructor(private readonly getScreenByIdUseCase: GetScreenByIdUseCase) {}
+export class GetScreenByNameController implements IController<unknown, GetScreenByNameParamsDTO> {
+  constructor(private readonly getScreenByNameUseCase: GetScreenByName) {}
 
-  async handle(request: IRequest<unknown, GetScreenByIdParamsDTO>): Promise<IResponse> {
+  async handle(request: IRequest<unknown, GetScreenByNameParamsDTO>): Promise<IResponse> {
     try {
-      const { id } = getScreenByIdParamsSchema.parse(request.params);
+      const { name } = getScreenByNameParamsSchema.parse(request.params);
 
-      const screen = await this.getScreenByIdUseCase.execute(id);
+      const screen = await this.getScreenByNameUseCase.execute(name);
 
       return ResponseHelper.ok(screen.toJSON());
     } catch (error) {
