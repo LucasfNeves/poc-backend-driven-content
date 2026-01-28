@@ -2,15 +2,14 @@ import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 import { AppError } from '@/shared/errors/AppErrors';
 import {
-  DomainError,
   ValidationError as DomainValidationError,
   NotFoundError as DomainNotFoundError,
   ConflictError as DomainConflictError,
   UnauthorizedError as DomainUnauthorizedError,
   ForbiddenError as DomainForbiddenError,
-} from '@/domain/errors';
+} from '@/shared/errors/AppErrors';
 
-function getDomainErrorStatusCode(error: DomainError): number {
+function getDomainErrorStatusCode(error: AppError): number {
   if (error instanceof DomainValidationError) return 400;
   if (error instanceof DomainNotFoundError) return 404;
   if (error instanceof DomainConflictError) return 409;
@@ -44,7 +43,7 @@ export async function globalErrorHandler(
     });
   }
 
-  if (error instanceof DomainError) {
+  if (error instanceof AppError) {
     const statusCode = getDomainErrorStatusCode(error);
     return reply.status(statusCode).send({
       error: error.name,
