@@ -5,8 +5,8 @@ import { ResponseHelper } from '@/shared/helpers/ResponseHelper';
 import {
   getScreenByNameParamsSchema,
   GetScreenByNameParamsDTO,
-} from '@/domain/schemas/GetScreenByNameSchema';
-import { NotFoundError } from '@/domain/errors';
+} from '@/domain/schemas/getScreenByNameSchema';
+import { NotFoundError } from '@/shared/errors/AppErrors';
 
 export class GetScreenByNameController implements IController<unknown, GetScreenByNameParamsDTO> {
   constructor(private readonly getScreenByNameUseCase: GetScreenByName) {}
