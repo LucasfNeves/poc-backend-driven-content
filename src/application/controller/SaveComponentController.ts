@@ -17,11 +17,7 @@ export class SaveComponentController {
 
   async handle(request: SaveComponentRequest): Promise<IResponse> {
     try {
-      const component = await this.useCase.execute(
-        request.body.name,
-        request.body.component,
-        request.body.isActive,
-      );
+      const component = await this.useCase.execute(request.body.name, request.body.component);
 
       return ResponseHelper.created(component.toJSON());
     } catch (error) {
