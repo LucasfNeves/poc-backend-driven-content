@@ -16,7 +16,7 @@ export interface ScreenProps {
 
 export interface ScreenPersistenceData {
   id: string;
-  name: ScreenName;
+  name: string;
   config: ScreenConfig | unknown;
   version: number;
   isActive: boolean;
