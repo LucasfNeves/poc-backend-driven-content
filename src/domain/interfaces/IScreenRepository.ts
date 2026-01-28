@@ -6,5 +6,5 @@ export interface IScreenRepository {
   findByName(name: string): Promise<Screen | null>;
   findAll(): Promise<Screen[]>;
   update(screen: Screen): Promise<Screen>;
-  delete(id: string): Promise<void>;
+  delete(id: string): Promise<{ id: string; name: string }>;
 }
