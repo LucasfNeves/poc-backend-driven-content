@@ -68,9 +68,15 @@ export class ScreenRepository implements IScreenRepository {
     return Screen.fromPersistence(updated);
   }
 
-  async delete(id: string): Promise<void> {
-    await prisma.screen.delete({
+  async delete(id: string): Promise<{ id: string; name: string }> {
+    const deletedScreen = await prisma.screen.delete({
       where: { id },
+      select: {
+        id: true,
+        name: true,
+      },
     });
+
+    return deletedScreen;
   }
 }
