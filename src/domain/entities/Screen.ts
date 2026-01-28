@@ -1,4 +1,4 @@
-import { ScreenValidationError } from '@/domain/errors';
+import { ScreenValidationError } from '@/shared/errors/AppErrors';
 import { CreateScreenData, ScreenConfig, ScreenPersistenceData } from './types/interfaces';
 
 export class Screen {
@@ -28,7 +28,7 @@ export class Screen {
   static create(data: CreateScreenData): Screen {
     const screen = new Screen({
       id: crypto.randomUUID(),
-      name: data.name,
+      name: data.name.toString(),
       config: data.config,
       version: data.version,
       isActive: data.isActive,
