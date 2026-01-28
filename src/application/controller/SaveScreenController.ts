@@ -1,26 +1,43 @@
+import { ZodError } from 'zod';
 import { IController, IRequest, IResponse } from '@/domain/interfaces/IController';
 import { ResponseHelper } from '@/shared/helpers/ResponseHelper';
 import { SaveScreenUseCase } from '../use-cases/SaveScreenUseCase';
-import { ScreenConfig } from '@/domain/entities/Screen';
+import {
+  saveScreenBodySchema,
+  SaveScreenBodyDTO,
+} from '@/domain/schemas/saveScreenControllerSchema';
+import { ConflictError, ValidationError } from '@/domain/errors';
 
-interface SaveScreenBody {
-  name: string;
-  config: ScreenConfig;
-  isActive?: boolean;
-}
-
-export class SaveScreenController implements IController<SaveScreenBody> {
+export class SaveScreenController implements IController<SaveScreenBodyDTO> {
   constructor(private readonly saveScreenUseCase: SaveScreenUseCase) {}
 
-  async handle(request: IRequest<SaveScreenBody>): Promise<IResponse> {
-    if (!request.body) {
-      return ResponseHelper.serverError('Request body is missing');
+  async handle(request: IRequest<SaveScreenBodyDTO>): Promise<IResponse> {
+    try {
+      const { name, config, isActive } = saveScreenBodySchema.parse(request.body);
+
+      const screen = await this.saveScreenUseCase.execute({
+        name,
+        config,
+        isActive,
+      });
+
+      return ResponseHelper.created(screen.toJSON());
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return ResponseHelper.fromZodError(error);
+      }
+
+      if (error instanceof ValidationError) {
+        return ResponseHelper.badRequest(error.message);
+      }
+
+      if (error instanceof ConflictError) {
+        return ResponseHelper.conflict(error.message);
+      }
+
+      return ResponseHelper.serverError(
+        error instanceof Error ? error.message : 'Unexpected error',
+      );
     }
-
-    const { name, config, isActive } = request.body;
-
-    const screen = await this.saveScreenUseCase.execute({ name, config, isActive });
-
-    return ResponseHelper.created(screen.toJSON());
   }
 }
