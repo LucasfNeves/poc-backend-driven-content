@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import {
+  makeDeleteScreenController,
   makeGetScreenByIdController,
   makeSaveScreenController,
 } from '@/infrastructure/factories/screens-factories';
@@ -15,6 +16,19 @@ interface SaveScreenBody {
 }
 
 export async function screenRoutes(fastify: FastifyInstance) {
+  fastify.post<{ Body: SaveScreenBody }>(
+    '/screens',
+    async (request: FastifyRequest<{ Body: SaveScreenBody }>, reply: FastifyReply) => {
+      const controller = makeSaveScreenController();
+
+      const response = await controller.handle({
+        body: request.body,
+      });
+
+      return reply.status(response.statusCode).send(response.body);
+    },
+  );
+
   fastify.get<{ Params: GetScreenByIdParams }>(
     '/screens/:id',
     async (request: FastifyRequest<{ Params: GetScreenByIdParams }>, reply: FastifyReply) => {
@@ -28,13 +42,13 @@ export async function screenRoutes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.post<{ Body: SaveScreenBody }>(
-    '/screens',
-    async (request: FastifyRequest<{ Body: SaveScreenBody }>, reply: FastifyReply) => {
-      const controller = makeSaveScreenController();
+  fastify.delete<{ Params: GetScreenByIdParams }>(
+    '/screens/:id',
+    async (request: FastifyRequest<{ Params: GetScreenByIdParams }>, reply: FastifyReply) => {
+      const controller = makeDeleteScreenController();
 
       const response = await controller.handle({
-        body: request.body,
+        params: request.params,
       });
 
       return reply.status(response.statusCode).send(response.body);
