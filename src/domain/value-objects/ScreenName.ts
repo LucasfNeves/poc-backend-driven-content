@@ -1,4 +1,4 @@
-import { ScreenValidationError } from '@/domain/errors';
+import { ScreenValidationError } from '@/shared/errors/AppErrors';
 
 export class ScreenName {
   private static readonly MIN_LENGTH = 1;
