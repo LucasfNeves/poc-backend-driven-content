@@ -6,12 +6,13 @@ import { globalErrorHandler } from '@/infrastructure/http/middlewares/errorHandl
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 const fastify = Fastify({
+  /* eslint-disable indent */
   logger: isDevelopment
     ? {
         transport: {
           target: 'pino-pretty',
           options: {
-            translateTime: 'HH:MM:ss',
+            translateTime: 'HH:mm:ss',
             ignore: 'pid,hostname',
             colorize: true,
             singleLine: true,
