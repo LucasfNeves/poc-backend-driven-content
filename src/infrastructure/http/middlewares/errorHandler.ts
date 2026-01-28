@@ -1,4 +1,5 @@
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
+import { ZodError } from 'zod';
 import { AppError } from '@/shared/errors/AppErrors';
 import {
   DomainError,
@@ -24,6 +25,17 @@ export async function globalErrorHandler(
   reply: FastifyReply,
 ) {
   request.log.error(error);
+
+  if (error instanceof ZodError) {
+    const errors = error.issues.map((issue) => ({
+      field: issue.path.join('.'),
+      message: issue.message,
+    }));
+    return reply.status(400).send({
+      error: 'Validation Error',
+      errors,
+    });
+  }
 
   if (error instanceof AppError) {
     return reply.status(error.statusCode).send({

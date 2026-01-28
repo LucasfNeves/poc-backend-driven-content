@@ -1,3 +1,4 @@
+import { ZodError } from 'zod';
 import { IResponse } from '@/domain/interfaces/IController';
 
 export const ok = <T>(body: T): IResponse => {
@@ -29,6 +30,24 @@ export const badRequest = (message: string): IResponse => {
       message,
     },
   };
+};
+
+export const validationError = (errors: Array<{ field: string; message: string }>): IResponse => {
+  return {
+    statusCode: 400,
+    body: {
+      error: 'Validation Error',
+      errors,
+    },
+  };
+};
+
+export const fromZodError = (error: ZodError): IResponse => {
+  const errors = error.issues.map((issue) => ({
+    field: issue.path.join('.'),
+    message: issue.message,
+  }));
+  return validationError(errors);
 };
 
 export const notFound = (message: string): IResponse => {
@@ -86,6 +105,8 @@ export const ResponseHelper = {
   created,
   noContent,
   badRequest,
+  validationError,
+  fromZodError,
   notFound,
   unauthorized,
   forbidden,
