@@ -6,7 +6,7 @@ import {
   saveScreenBodySchema,
   SaveScreenBodyDTO,
 } from '@/domain/schemas/saveScreenControllerSchema';
-import { ConflictError, ValidationError } from '@/domain/errors';
+import { ConflictError, ValidationError } from '@/shared/errors/AppErrors';
 
 export class SaveScreenController implements IController<SaveScreenBodyDTO> {
   constructor(private readonly saveScreenUseCase: SaveScreenUseCase) {}
