@@ -1,7 +1,8 @@
-import { Screen, ScreenConfig } from '@/domain/entities/Screen';
-import { ConflictError } from '@/domain/errors';
+import { Screen } from '@/domain/entities/Screen';
+import { ConflictError } from '@/shared/errors/AppErrors';
 import { IScreenRepository } from '@/domain/interfaces/IScreenRepository';
 import { ScreenName } from '@/domain/value-objects';
+import { ScreenConfig } from '@/domain/entities/types/interfaces';
 
 interface SaveScreenDTO {
   name: string;
