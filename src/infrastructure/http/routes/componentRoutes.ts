@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import {
   makeDeleteComponentController,
-  makeGetComponentByIdController,
+  makeGetComponentsController,
   makeSaveComponentController,
   makeUpdateComponentController,
 } from '@/infrastructure/factories/component-factories';
@@ -16,38 +16,37 @@ interface SaveComponentBody {
   isActive?: boolean;
 }
 
+interface UpdateComponentParams {
+  name: string;
+}
+
 interface UpdateComponentBody {
-  name?: string;
-  component?: Record<string, unknown>;
-  isActive?: boolean;
+  component: Record<string, unknown>;
 }
 
 export async function componentRoutes(fastify: FastifyInstance) {
   fastify.post<{ Body: SaveComponentBody }>(
     '/components',
     async (request: FastifyRequest<{ Body: SaveComponentBody }>, reply: FastifyReply) => {
-      const controller = makeSaveComponentController();
+      const controller = makeSaveComponentController(fastify);
       const response = await controller.handle({ body: request.body });
       return reply.status(response.statusCode).send(response.body);
     },
   );
 
-  fastify.get<{ Params: GetComponentByIdParams }>(
-    '/components/:id',
-    async (request: FastifyRequest<{ Params: GetComponentByIdParams }>, reply: FastifyReply) => {
-      const controller = makeGetComponentByIdController();
-      const response = await controller.handle({ params: request.params });
-      return reply.status(response.statusCode).send(response.body);
-    },
-  );
+  fastify.get('/components', async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = makeGetComponentsController();
+    const response = await controller.handle({ query: request.query });
+    return reply.status(response.statusCode).send(response.body);
+  });
 
-  fastify.put<{ Params: GetComponentByIdParams; Body: UpdateComponentBody }>(
-    '/components/:id',
+  fastify.put<{ Params: UpdateComponentParams; Body: UpdateComponentBody }>(
+    '/components/:name',
     async (
-      request: FastifyRequest<{ Params: GetComponentByIdParams; Body: UpdateComponentBody }>,
+      request: FastifyRequest<{ Params: UpdateComponentParams; Body: UpdateComponentBody }>,
       reply: FastifyReply,
     ) => {
-      const controller = makeUpdateComponentController();
+      const controller = makeUpdateComponentController(fastify);
       const response = await controller.handle({ params: request.params, body: request.body });
       return reply.status(response.statusCode).send(response.body);
     },
@@ -56,7 +55,7 @@ export async function componentRoutes(fastify: FastifyInstance) {
   fastify.delete<{ Params: GetComponentByIdParams }>(
     '/components/:id',
     async (request: FastifyRequest<{ Params: GetComponentByIdParams }>, reply: FastifyReply) => {
-      const controller = makeDeleteComponentController();
+      const controller = makeDeleteComponentController(fastify);
       const response = await controller.handle({ params: request.params });
       return reply.status(response.statusCode).send(response.body);
     },
