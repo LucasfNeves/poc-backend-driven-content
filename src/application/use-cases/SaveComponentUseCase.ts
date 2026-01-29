@@ -1,6 +1,7 @@
 import { Component } from '@/domain/entities/Component';
 import { ComponentRepository } from '@/infrastructure/repositories/postgres/ComponentRepository';
 import { JsonStorageService } from '@/infrastructure/services/JsonStorageService';
+import { ConflictError } from '@/shared/errors/AppErrors';
 
 export class SaveComponentUseCase {
   constructor(
@@ -11,16 +12,14 @@ export class SaveComponentUseCase {
   async execute(name: string, componentData: unknown): Promise<Component> {
     const existing = await this.repository.findByName(name);
 
-    let component: Component;
     if (existing) {
-      component = existing.updateComponent(componentData);
-      component = await this.repository.update(component);
-    } else {
-      component = Component.create(name, componentData);
-      component = await this.repository.save(component);
+      throw new ConflictError('Component', 'name', name);
     }
 
-    await this.jsonStorage.save(component);
-    return component;
+    const component = Component.create(name, componentData);
+    const saved = await this.repository.save(component);
+    await this.jsonStorage.save(saved);
+
+    return saved;
   }
 }

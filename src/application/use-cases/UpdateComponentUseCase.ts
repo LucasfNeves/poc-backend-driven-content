@@ -9,19 +9,17 @@ export class UpdateComponentUseCase {
     private readonly jsonStorage: JsonStorageService,
   ) {}
 
-  async execute(
-    id: string,
-    data: { name?: string; component?: unknown; isActive?: boolean },
-  ): Promise<Component> {
-    const existing = await this.repository.findById(id);
+  async execute(name: string, componentData: unknown): Promise<Component> {
+    const existing = await this.repository.findByName(name);
 
     if (!existing) {
-      throw new NotFoundError('Component', id);
+      throw new NotFoundError('Component', name);
     }
 
-    const updated = existing.updateComponent(data.component || existing.component);
-    const component = await this.repository.update(updated);
-    await this.jsonStorage.save(component);
-    return component;
+    const updated = existing.updateComponent(componentData);
+    const saved = await this.repository.update(updated);
+    await this.jsonStorage.save(saved);
+
+    return saved;
   }
 }
