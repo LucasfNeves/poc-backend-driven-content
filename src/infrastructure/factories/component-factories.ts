@@ -7,7 +7,6 @@ import { GetComponentsUseCase } from '@/application/use-cases/GetComponentsUseCa
 import { SaveComponentUseCase } from '@/application/use-cases/SaveComponentUseCase';
 import { UpdateComponentUseCase } from '@/application/use-cases/UpdateComponentUseCase';
 import { ComponentRepository } from '@/infrastructure/repositories/postgres/ComponentRepository';
-import { JsonStorageService } from '@/infrastructure/services/JsonStorageService';
 import { FastifyInstance } from 'fastify';
 
 export const makeGetComponentsController = (): GetComponentsController => {
@@ -18,8 +17,7 @@ export const makeGetComponentsController = (): GetComponentsController => {
 
 export const makeSaveComponentController = (fastify?: FastifyInstance): SaveComponentController => {
   const repository = new ComponentRepository();
-  const jsonStorage = new JsonStorageService();
-  const useCase = new SaveComponentUseCase(repository, jsonStorage);
+  const useCase = new SaveComponentUseCase(repository);
   const controller = new SaveComponentController(useCase);
   if (fastify) controller.fastify = fastify;
   return controller;
@@ -29,8 +27,7 @@ export const makeUpdateComponentController = (
   fastify?: FastifyInstance,
 ): UpdateComponentController => {
   const repository = new ComponentRepository();
-  const jsonStorage = new JsonStorageService();
-  const useCase = new UpdateComponentUseCase(repository, jsonStorage);
+  const useCase = new UpdateComponentUseCase(repository);
   const controller = new UpdateComponentController(useCase);
   if (fastify) controller.fastify = fastify;
   return controller;
@@ -40,8 +37,7 @@ export const makeDeleteComponentController = (
   fastify?: FastifyInstance,
 ): DeleteComponentController => {
   const repository = new ComponentRepository();
-  const jsonStorage = new JsonStorageService();
-  const useCase = new DeleteComponentUseCase(repository, jsonStorage);
+  const useCase = new DeleteComponentUseCase(repository);
   const controller = new DeleteComponentController(useCase);
   if (fastify) controller.fastify = fastify;
   return controller;
