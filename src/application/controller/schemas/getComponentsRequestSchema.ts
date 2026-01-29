@@ -1,13 +1,13 @@
 import z from 'zod';
-import { uuidSchema } from './common';
+import { uuidSchema, nameSchema } from './common';
+
+const cleanValue = (val: unknown) => (!val || val === 'null' || val === '' ? undefined : val);
 
 export const getComponentsRequestSchema = z.object({
-  query: z
-    .object({
-      id: uuidSchema,
-      name: z.string(),
-    })
-    .partial(),
+  query: z.object({
+    id: z.preprocess(cleanValue, uuidSchema.optional()),
+    name: z.preprocess(cleanValue, nameSchema.optional()),
+  }),
 });
 
 export type GetComponentsRequest = z.infer<typeof getComponentsRequestSchema>;
