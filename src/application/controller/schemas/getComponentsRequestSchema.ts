@@ -1,13 +1,9 @@
 import z from 'zod';
-
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { uuidSchema } from './common';
 
 export const getComponentsRequestSchema = z.object({
   query: z.object({
-    id: z
-      .string()
-      .refine((val) => uuidRegex.test(val), { message: 'ID must be a valid UUID' })
-      .optional(),
+    id: uuidSchema.optional(),
     name: z.string().optional(),
   }),
 });
