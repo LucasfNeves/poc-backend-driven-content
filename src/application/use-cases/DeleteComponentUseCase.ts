@@ -1,12 +1,8 @@
 import { ComponentRepository } from '@/infrastructure/repositories/postgres/ComponentRepository';
-import { JsonStorageService } from '@/infrastructure/services/JsonStorageService';
 import { NotFoundError } from '@/shared/errors/AppErrors';
 
 export class DeleteComponentUseCase {
-  constructor(
-    private readonly repository: ComponentRepository,
-    private readonly jsonStorage: JsonStorageService,
-  ) {}
+  constructor(private readonly repository: ComponentRepository) {}
 
   async execute(id: string): Promise<{ id: string; name: string }> {
     const existing = await this.repository.findById(id);
@@ -15,8 +11,8 @@ export class DeleteComponentUseCase {
       throw new NotFoundError('Component', id);
     }
 
-    const result = await this.repository.delete(id);
-    await this.jsonStorage.delete(result.name);
-    return result;
+    const componentDeleted = await this.repository.delete(id);
+
+    return componentDeleted;
   }
 }
