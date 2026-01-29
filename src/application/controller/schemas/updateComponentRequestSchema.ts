@@ -1,8 +1,9 @@
 import z from 'zod';
+import { nameSchema } from './common';
 
 export const updateComponentRequestSchema = z.object({
   params: z.object({
-    name: z.string().min(1, 'Name is required'),
+    name: nameSchema,
   }),
   body: z.object({
     component: z
