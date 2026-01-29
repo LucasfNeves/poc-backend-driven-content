@@ -10,7 +10,6 @@ export interface TextComponent extends BaseComponent {
     fontSize?: number;
     fontWeight?: string;
     color?: string;
-    height?: number;
   };
 }
 
@@ -43,16 +42,4 @@ export interface AppBarComponent extends BaseComponent {
   actions?: IconButtonComponent[];
 }
 
-export interface ScaffoldComponent extends BaseComponent {
-  type: 'scaffold';
-  backgroundColor?: string;
-  appBar?: AppBarComponent;
-  body?: unknown;
-}
-
-export type Component =
-  | TextComponent
-  | IconComponent
-  | IconButtonComponent
-  | AppBarComponent
-  | ScaffoldComponent;
+export type Component = TextComponent | IconComponent | IconButtonComponent | AppBarComponent;
