@@ -29,13 +29,13 @@ export class ComponentRepository implements IComponentRepository {
   }
 
   async findById(id: string): Promise<Component | null> {
-    const data = await prisma.screen.findUnique({ where: { id } });
+    const data = await prisma.component.findUnique({ where: { id } });
     if (!data) return null;
     return this.toEntity(data);
   }
 
   async save(component: Component): Promise<Component> {
-    const created = await prisma.screen.create({
+    const created = await prisma.component.create({
       data: {
         id: component.id,
         name: component.name,
@@ -48,18 +48,18 @@ export class ComponentRepository implements IComponentRepository {
   }
 
   async findByName(name: string): Promise<Component | null> {
-    const data = await prisma.screen.findUnique({ where: { name } });
+    const data = await prisma.component.findUnique({ where: { name } });
     if (!data) return null;
     return this.toEntity(data);
   }
 
   async findAll(): Promise<Component[]> {
-    const data = await prisma.screen.findMany({ orderBy: { createdAt: 'desc' } });
+    const data = await prisma.component.findMany({ orderBy: { createdAt: 'desc' } });
     return data.map((d) => this.toEntity(d));
   }
 
   async update(component: Component): Promise<Component> {
-    const updated = await prisma.screen.update({
+    const updated = await prisma.component.update({
       where: { id: component.id },
       data: {
         name: component.name,
@@ -72,7 +72,7 @@ export class ComponentRepository implements IComponentRepository {
   }
 
   async delete(id: string): Promise<{ id: string; name: string }> {
-    return await prisma.screen.delete({
+    return await prisma.component.delete({
       where: { id },
       select: { id: true, name: true },
     });
