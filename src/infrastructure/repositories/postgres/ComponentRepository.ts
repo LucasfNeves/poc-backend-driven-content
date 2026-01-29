@@ -24,6 +24,10 @@ export class ComponentRepository implements IComponentRepository {
     });
   }
 
+  private serializeComponent(component: ComponentType) {
+    return JSON.parse(JSON.stringify(component));
+  }
+
   async findById(id: string): Promise<Component | null> {
     const data = await prisma.screen.findUnique({ where: { id } });
     if (!data) return null;
@@ -35,11 +39,9 @@ export class ComponentRepository implements IComponentRepository {
       data: {
         id: component.id,
         name: component.name,
-        config: component.toPersistence(),
+        config: this.serializeComponent(component.component),
         version: component.version,
         isActive: component.isActive,
-        createdAt: component.createdAt,
-        updatedAt: component.updatedAt,
       },
     });
     return this.toEntity(created);
@@ -61,10 +63,9 @@ export class ComponentRepository implements IComponentRepository {
       where: { id: component.id },
       data: {
         name: component.name,
-        config: component.toPersistence(),
+        config: this.serializeComponent(component.component),
         version: component.version,
         isActive: component.isActive,
-        updatedAt: component.updatedAt,
       },
     });
     return this.toEntity(updated);
