@@ -1,16 +1,20 @@
-import "dotenv/config";
-import Fastify from "fastify";
+import 'dotenv/config';
+import Fastify from 'fastify';
+import { globalErrorHandler } from '@/infrastructure/http/middlewares/errorHandler';
+import routesPlugin from '@/infrastructure/http/plugins/routes';
+import websocketPlugin from '@/infrastructure/http/plugins/websocket';
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 const fastify = Fastify({
+  /* eslint-disable indent */
   logger: isDevelopment
     ? {
         transport: {
-          target: "pino-pretty",
+          target: 'pino-pretty',
           options: {
-            translateTime: "HH:MM:ss",
-            ignore: "pid,hostname",
+            translateTime: 'HH:mm:ss',
+            ignore: 'pid,hostname',
             colorize: true,
             singleLine: true,
           },
@@ -19,16 +23,25 @@ const fastify = Fastify({
     : true,
 });
 
-fastify.get("/health", async () => {
-  return { status: "ok" };
+fastify.setErrorHandler(globalErrorHandler);
+
+fastify.get('/health', async () => {
+  return { status: 'ok' };
 });
 
 const start = async () => {
   try {
+    await fastify.register(routesPlugin);
+
+    if (isDevelopment) {
+      await fastify.register(websocketPlugin);
+      fastify.log.info('Hot-reload WebSocket enabled at ws://localhost:3000/ws/live-preview');
+    }
+
     const port = Number(process.env.PORT || process.env.API_PORT) || 3000;
     await fastify.listen({
       port,
-      host: "0.0.0.0",
+      host: '0.0.0.0',
     });
   } catch (err) {
     fastify.log.error(err);

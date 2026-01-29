@@ -1,0 +1,170 @@
+{
+  "name": "home-dashboard",
+  "config": {
+    "scaffold": {
+      "appBar": {
+        "leading": {
+          "widget": "IconButton",
+          "icon": "Icons.menu",
+          "onPressed": {
+            "action": "openDrawer"
+          }
+        },
+        "title": {
+          "widget": "Image",
+          "asset": "assets/images/mobi-logo.png",
+          "height": 32
+        },
+        "centerTitle": true,
+        "backgroundColor": "0xFFFFFFFF",
+        "elevation": 0
+      },
+      "body": {
+        "widget": "SafeArea",
+        "child": {
+          "widget": "Padding",
+          "padding": { "all": 16 },
+          "child": {
+            "widget": "Column",
+            "crossAxisAlignment": "CrossAxisAlignment.start",
+            "children": [
+              {
+                "widget": "Text",
+                "data": "Acessos recentes",
+                "style": {
+                  "fontSize": 18,
+                  "fontWeight": "FontWeight.w600",
+                  "color": "0xFF1A1A1A"
+                }
+              },
+              {
+                "widget": "SizedBox",
+                "height": 16
+              },
+              {
+                "widget": "Expanded",
+                "child": {
+                  "widget": "GridView.builder",
+                  "gridDelegate": {
+                    "type": "SliverGridDelegateWithFixedCrossAxisCount",
+                    "crossAxisCount": 2,
+                    "crossAxisSpacing": 12,
+                    "mainAxisSpacing": 12,
+                    "childAspectRatio": 1.1
+                  },
+                  "itemBuilder": {
+                    "widget": "Card",
+                    "elevation": 2,
+                    "shape": {
+                      "type": "RoundedRectangleBorder",
+                      "borderRadius": 12
+                    },
+                    "color": "{{item.cardColor}}",
+                    "child": {
+                      "widget": "InkWell",
+                      "onTap": {
+                        "action": "Navigator.pushNamed",
+                        "route": "{{item.route}}"
+                      },
+                      "borderRadius": 12,
+                      "child": {
+                        "widget": "Padding",
+                        "padding": { "all": 16 },
+                        "child": {
+                          "widget": "Column",
+                          "crossAxisAlignment": "CrossAxisAlignment.start",
+                          "mainAxisAlignment": "MainAxisAlignment.spaceBetween",
+                          "children": [
+                            {
+                              "widget": "Container",
+                              "width": 48,
+                              "height": 48,
+                              "decoration": {
+                                "color": "{{item.iconBackgroundColor}}",
+                                "borderRadius": 24
+                              },
+                              "child": {
+                                "widget": "Icon",
+                                "icon": "{{item.icon}}",
+                                "color": "{{item.iconColor}}",
+                                "size": 24
+                              }
+                            },
+                            {
+                              "widget": "Column",
+                              "crossAxisAlignment": "CrossAxisAlignment.start",
+                              "children": [
+                                {
+                                  "widget": "Text",
+                                  "data": "{{item.subtitle}}",
+                                  "style": {
+                                    "fontSize": 12,
+                                    "color": "{{item.subtitleColor}}"
+                                  }
+                                },
+                                {
+                                  "widget": "Text",
+                                  "data": "{{item.title}}",
+                                  "style": {
+                                    "fontSize": 14,
+                                    "fontWeight": "FontWeight.w600",
+                                    "color": "{{item.titleColor}}"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "emptyState": {
+                    "widget": "Center",
+                    "child": {
+                      "widget": "Column",
+                      "mainAxisAlignment": "MainAxisAlignment.center",
+                      "children": [
+                        {
+                          "widget": "Image",
+                          "asset": "assets/images/empty-clipboard.png",
+                          "height": 120
+                        },
+                        {
+                          "widget": "SizedBox",
+                          "height": 24
+                        },
+                        {
+                          "widget": "Text",
+                          "data": "Sem acessos recentes",
+                          "style": {
+                            "fontSize": 16,
+                            "fontWeight": "FontWeight.w600",
+                            "color": "0xFF1A1A1A"
+                          }
+                        },
+                        {
+                          "widget": "SizedBox",
+                          "height": 8
+                        },
+                        {
+                          "widget": "Text",
+                          "data": "Os acessos realizados recentemente serão listados aqui.",
+                          "textAlign": "TextAlign.center",
+                          "style": {
+                            "fontSize": 14,
+                            "color": "0x99000000"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "isActive": true
+}
