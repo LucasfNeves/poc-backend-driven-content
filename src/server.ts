@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
-import { screenRoutes } from '@/infrastructure/http/routes/screenRoutes';
 import { globalErrorHandler } from '@/infrastructure/http/middlewares/errorHandler';
+import routesPlugin from '@/infrastructure/http/plugins/routes';
+import websocketPlugin from '@/infrastructure/http/plugins/websocket';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -30,7 +31,12 @@ fastify.get('/health', async () => {
 
 const start = async () => {
   try {
-    await fastify.register(screenRoutes);
+    await fastify.register(routesPlugin);
+
+    if (isDevelopment) {
+      await fastify.register(websocketPlugin);
+      fastify.log.info('Hot-reload WebSocket enabled at ws://localhost:3000/ws/live-preview');
+    }
 
     const port = Number(process.env.PORT || process.env.API_PORT) || 3000;
     await fastify.listen({

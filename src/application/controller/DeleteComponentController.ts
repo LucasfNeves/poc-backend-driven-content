@@ -2,19 +2,29 @@ import { DeleteComponentUseCase } from '@/application/use-cases/DeleteComponentU
 import { ResponseHelper } from '@/shared/helpers/ResponseHelper';
 import { AppError } from '@/shared/errors/AppErrors';
 import { IResponse } from '@/domain/interfaces/IController';
-
-interface DeleteComponentRequest {
-  params: { id: string };
-}
+import { ZodError } from 'zod';
+import { deleteComponentRequestSchema } from './schemas/deleteComponentRequestSchema';
+import { FastifyInstance } from 'fastify';
 
 export class DeleteComponentController {
+  public fastify?: FastifyInstance;
+
   constructor(private readonly useCase: DeleteComponentUseCase) {}
 
-  async handle(request: DeleteComponentRequest): Promise<IResponse> {
+  async handle(request: unknown): Promise<IResponse> {
     try {
-      const result = await this.useCase.execute(request.params.id);
+      const { params } = deleteComponentRequestSchema.parse(request);
+      const { id } = params;
+
+      const result = await this.useCase.execute(id);
+
+      this.fastify?.notifyComponentDeleted?.(result.name);
+
       return ResponseHelper.ok(result);
     } catch (error) {
+      if (error instanceof ZodError) {
+        return ResponseHelper.fromZodError(error);
+      }
       if (error instanceof AppError) {
         return error.toResponse();
       }

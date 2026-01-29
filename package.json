@@ -14,7 +14,10 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "prepare": "husky",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed:create": "tsx seeds/seed.ts create",
+    "seed:update": "tsx seeds/seed.ts update",
+    "seed:delete": "tsx seeds/seed.ts delete"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +39,7 @@
     "@eslint/js": "^9.39.2",
     "@types/node": "^25.0.10",
     "@types/pg": "^8.16.0",
+    "@types/ws": "^8.18.1",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
