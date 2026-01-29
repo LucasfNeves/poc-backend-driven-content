@@ -1,48 +1,60 @@
-.PHONY: docker-up docker-down docker-rebuild docker-logs docker-logs-db docker-shell docker-shell-db docker-migrate docker-migrate-create docker-seed docker-clean docker-start test-watch test-coverage
+.PHONY: help dev seed-create seed-update seed-delete db-reset up down rebuild exec kill-port logs
 
-docker-up:
-	docker compose --env-file .env -f docker/docker-compose.yml rm -sf backend 2>/dev/null || true
-	docker volume rm docker_backend_node_modules 2>/dev/null || true
+help: ## Mostra ajuda
+	@echo "Comandos disponíveis:"
+	@echo "  make dev           - Inicia servidor em modo desenvolvimento"
+	@echo "  make seed-create   - Cria componentes via API"
+	@echo "  make seed-update   - Atualiza componentes via API"
+	@echo "  make seed-delete   - Deleta todos componentes via API"
+	@echo "  make db-reset      - Reseta banco e cria componentes"
+	@echo "  make up            - Sobe containers Docker"
+	@echo "  make down          - Para containers Docker"
+	@echo "  make rebuild       - Reconstroi e sobe containers"
+	@echo "  make exec          - Acessa shell do container backend"
+	@echo "  make logs          - Mostra logs do backend"
+	@echo "  make kill-port     - Mata processo na porta 3000"
+
+dev: ## Inicia servidor
+	npm run dev
+
+seed-create: ## Cria componentes
+	@echo "Criando componentes..."
+	npm run seed:create
+
+seed-update: ## Atualiza componentes
+	@echo "Atualizando componentes..."
+	npm run seed:update
+
+seed-delete: ## Deleta componentes
+	@echo "Deletando componentes..."
+	npm run seed:delete
+
+db-reset: ## Reseta banco e cria componentes
+	@echo "Resetando banco..."
+	npm run prisma migrate reset --force
+	@echo "Criando componentes..."
+	npm run seed:create
+
+kill-port: ## Mata processo na porta 3000
+	@echo "Matando processo na porta 3000..."
+	@lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+
+up: ## Sobe containers
+	$(MAKE) kill-port
+	docker compose --env-file .env -f docker/docker-compose.yml down -v
 	docker compose --env-file .env -f docker/docker-compose.yml up -d --build
 
-docker-down:
+down: ## Para containers
 	docker compose --env-file .env -f docker/docker-compose.yml down
 
-docker-rebuild:
+rebuild: ## Reconstroi containers
+	$(MAKE) kill-port
+	docker compose --env-file .env -f docker/docker-compose.yml down -v
 	docker compose --env-file .env -f docker/docker-compose.yml up -d --build
 
-docker-logs:
-	docker compose --env-file .env -f docker/docker-compose.yml logs -f backend
-
-docker-logs-db:
-	docker compose --env-file .env -f docker/docker-compose.yml logs -f postgres
-
-docker-shell:
-	docker compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it api sh
-
-docker-shell-db:
-	docker compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it db psql -U postgres -d poc_backend_driven
-
-docker-migrate:
-	docker compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it api npx prisma migrate dev
-
-docker-migrate-create:
-	docker exec -it api npx prisma migrate dev --name $(name)
-
-docker-seed:
-	docker compose --env-file .env -f docker/docker-compose.yml up -d && docker exec -it api npx prisma db seed
-
-docker-clean:
-	docker compose --env-file .env -f docker/docker-compose.yml down -v
-
-docker-start:
-	$(MAKE) docker-up
+exec: ## Acessa shell do backend
+	docker compose --env-file .env -f docker/docker-compose.yml restart backend
 	docker exec -it api sh
 
-test-watch:
-	$(MAKE) docker-up
-	docker exec -it api npm run test:watch
-
-test-coverage:
-	$(MAKE) docker-up
-	docker exec -it api npm run test:coverage
+logs: ## Mostra logs do backend
+	docker compose --env-file .env -f docker/docker-compose.yml logs -f backend
