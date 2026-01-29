@@ -3,21 +3,22 @@ import { ResponseHelper } from '@/shared/helpers/ResponseHelper';
 import { AppError } from '@/shared/errors/AppErrors';
 import { IResponse } from '@/domain/interfaces/IController';
 import { ZodError } from 'zod';
-
-interface SaveComponentRequest {
-  body: {
-    name: string;
-    component: Record<string, unknown>;
-    isActive?: boolean;
-  };
-}
+import { saveComponentRequestSchema } from './schemas/saveComponentRequestSchema';
+import { FastifyInstance } from 'fastify';
 
 export class SaveComponentController {
-  constructor(private readonly useCase: SaveComponentUseCase) {}
+  public fastify?: FastifyInstance;
 
-  async handle(request: SaveComponentRequest): Promise<IResponse> {
+  constructor(private readonly saveComponentUseCase: SaveComponentUseCase) {}
+
+  async handle(request: unknown): Promise<IResponse> {
     try {
-      const component = await this.useCase.execute(request.body.name, request.body.component);
+      const { body } = saveComponentRequestSchema.parse(request);
+      const { name, component: componentData } = body;
+
+      const component = await this.saveComponentUseCase.execute(name, componentData);
+
+      this.fastify?.notifyComponentCreated?.(name, component.toJSON());
 
       return ResponseHelper.created(component.toJSON());
     } catch (error) {
