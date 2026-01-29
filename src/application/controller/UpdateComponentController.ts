@@ -3,22 +3,24 @@ import { ResponseHelper } from '@/shared/helpers/ResponseHelper';
 import { AppError } from '@/shared/errors/AppErrors';
 import { IResponse } from '@/domain/interfaces/IController';
 import { ZodError } from 'zod';
-
-interface UpdateComponentRequest {
-  params: { id: string };
-  body: {
-    name?: string;
-    component?: Record<string, unknown>;
-    isActive?: boolean;
-  };
-}
+import { updateComponentRequestSchema } from './schemas/updateComponentRequestSchema';
+import { FastifyInstance } from 'fastify';
 
 export class UpdateComponentController {
+  public fastify?: FastifyInstance;
+
   constructor(private readonly useCase: UpdateComponentUseCase) {}
 
-  async handle(request: UpdateComponentRequest): Promise<IResponse> {
+  async handle(request: unknown): Promise<IResponse> {
     try {
-      const component = await this.useCase.execute(request.params.id, request.body);
+      const { params, body } = updateComponentRequestSchema.parse(request);
+      const { name } = params;
+      const { component: componentData } = body;
+
+      const component = await this.useCase.execute(name, componentData);
+
+      this.fastify?.notifyComponentUpdated?.(name, component.toJSON());
+
       return ResponseHelper.ok(component.toJSON());
     } catch (error) {
       if (error instanceof ZodError) {
