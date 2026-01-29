@@ -1,37 +1,48 @@
 import { DeleteComponentController } from '@/application/controller/DeleteComponentController';
-import { GetComponentByIdController } from '@/application/controller/GetComponentByIdController';
+import { GetComponentsController } from '@/application/controller/GetComponentsController';
 import { SaveComponentController } from '@/application/controller/SaveComponentController';
 import { UpdateComponentController } from '@/application/controller/UpdateComponentController';
 import { DeleteComponentUseCase } from '@/application/use-cases/DeleteComponentUseCase';
-import { GetComponentByIdUseCase } from '@/application/use-cases/GetComponentByIdUseCase';
+import { GetComponentsUseCase } from '@/application/use-cases/GetComponentsUseCase';
 import { SaveComponentUseCase } from '@/application/use-cases/SaveComponentUseCase';
 import { UpdateComponentUseCase } from '@/application/use-cases/UpdateComponentUseCase';
 import { ComponentRepository } from '@/infrastructure/repositories/postgres/ComponentRepository';
 import { JsonStorageService } from '@/infrastructure/services/JsonStorageService';
+import { FastifyInstance } from 'fastify';
 
-export const makeGetComponentByIdController = (): GetComponentByIdController => {
+export const makeGetComponentsController = (): GetComponentsController => {
   const repository = new ComponentRepository();
-  const useCase = new GetComponentByIdUseCase(repository);
-  return new GetComponentByIdController(useCase);
+  const useCase = new GetComponentsUseCase(repository);
+  return new GetComponentsController(useCase);
 };
 
-export const makeSaveComponentController = (): SaveComponentController => {
+export const makeSaveComponentController = (fastify?: FastifyInstance): SaveComponentController => {
   const repository = new ComponentRepository();
   const jsonStorage = new JsonStorageService();
   const useCase = new SaveComponentUseCase(repository, jsonStorage);
-  return new SaveComponentController(useCase);
+  const controller = new SaveComponentController(useCase);
+  if (fastify) controller.fastify = fastify;
+  return controller;
 };
 
-export const makeUpdateComponentController = (): UpdateComponentController => {
+export const makeUpdateComponentController = (
+  fastify?: FastifyInstance,
+): UpdateComponentController => {
   const repository = new ComponentRepository();
   const jsonStorage = new JsonStorageService();
   const useCase = new UpdateComponentUseCase(repository, jsonStorage);
-  return new UpdateComponentController(useCase);
+  const controller = new UpdateComponentController(useCase);
+  if (fastify) controller.fastify = fastify;
+  return controller;
 };
 
-export const makeDeleteComponentController = (): DeleteComponentController => {
+export const makeDeleteComponentController = (
+  fastify?: FastifyInstance,
+): DeleteComponentController => {
   const repository = new ComponentRepository();
   const jsonStorage = new JsonStorageService();
   const useCase = new DeleteComponentUseCase(repository, jsonStorage);
-  return new DeleteComponentController(useCase);
+  const controller = new DeleteComponentController(useCase);
+  if (fastify) controller.fastify = fastify;
+  return controller;
 };
