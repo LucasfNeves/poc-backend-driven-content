@@ -8,6 +8,7 @@ import {
   UnauthorizedError as DomainUnauthorizedError,
   ForbiddenError as DomainForbiddenError,
 } from '@/shared/errors/AppErrors';
+import { ComponentValidationError } from '@/domain/components/errors/ComponentValidationError';
 
 function getDomainErrorStatusCode(error: AppError): number {
   if (error instanceof DomainValidationError) return 400;
@@ -24,6 +25,13 @@ export async function globalErrorHandler(
   reply: FastifyReply,
 ) {
   request.log.error(error);
+
+  if (error instanceof ComponentValidationError) {
+    return reply.status(400).send({
+      error: 'Component Validation Error',
+      message: error.message,
+    });
+  }
 
   if (error instanceof ZodError) {
     const errors = error.issues.map((issue) => ({
