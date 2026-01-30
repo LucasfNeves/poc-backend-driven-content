@@ -1,6 +1,7 @@
 import { TextComponent } from '../types/types';
 import { ComponentValidator } from '../validators/ComponentValidator';
 import { ensureProperty } from '../helpers/ensureProperty';
+import { applyOptions } from '../helpers/applyOptions';
 
 export class TextBuilder {
   private component: Partial<TextComponent> = {
@@ -37,13 +38,7 @@ export class TextBuilder {
     options?: { fontSize?: number; fontWeight?: string; color?: string },
   ): TextComponent {
     const builder = new TextBuilder().data(text);
-
-    if (options) {
-      if (options.fontSize !== undefined) builder.fontSize(options.fontSize);
-      if (options.fontWeight !== undefined) builder.fontWeight(options.fontWeight);
-      if (options.color !== undefined) builder.color(options.color);
-    }
-
+    applyOptions(builder, options);
     return builder.toJSON();
   }
 
