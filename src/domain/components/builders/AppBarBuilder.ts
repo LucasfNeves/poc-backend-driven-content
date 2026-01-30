@@ -1,57 +1,60 @@
-import { TextBuilder } from './TextBuilder';
-import { IconBuilder } from './IconBuilder';
-import { AppBarComponent } from '../types/types';
+import { AppBarComponent, TextComponent, IconButtonComponent } from '../types/types';
+import { ComponentValidator } from '../validators/ComponentValidator';
 
 export class AppBarBuilder {
   private component: Partial<AppBarComponent> = {
     type: 'appBar',
+    elevation: 4,
+    centerTitle: false,
   };
 
-  title(text: string): this {
-    this.component.title = new TextBuilder().data(text).build();
+  title(title: TextComponent): this {
+    ComponentValidator.validateComponentType(title, 'text', 'Title');
+    this.component.title = title;
     return this;
   }
 
   backgroundColor(color: string): this {
+    ComponentValidator.validateColor(color);
     this.component.backgroundColor = color;
     return this;
   }
 
   foregroundColor(color: string): this {
+    ComponentValidator.validateColor(color);
     this.component.foregroundColor = color;
     return this;
   }
 
   elevation(value: number): this {
+    ComponentValidator.validateNonNegative(value, 'Elevation');
     this.component.elevation = value;
     return this;
   }
 
-  centerTitle(value: boolean = true): this {
+  centerTitle(value: boolean): this {
     this.component.centerTitle = value;
     return this;
   }
 
-  leading(icon: string, action?: string): this {
-    this.component.leading = {
-      type: 'iconButton',
-      icon: new IconBuilder().icon(icon).build(),
-      ...(action && { onPressed: { action } }),
-    };
+  leading(iconButton: IconButtonComponent): this {
+    ComponentValidator.validateComponentType(iconButton, 'iconButton', 'Leading');
+    this.component.leading = iconButton;
     return this;
   }
 
-  addAction(icon: string, action?: string): this {
-    if (!this.component.actions) this.component.actions = [];
-    this.component.actions.push({
-      type: 'iconButton',
-      icon: new IconBuilder().icon(icon).build(),
-      ...(action && { onPressed: { action } }),
+  actions(actions: IconButtonComponent[]): this {
+    if (!Array.isArray(actions)) {
+      throw new Error('Actions must be an array');
+    }
+    actions.forEach((action, index) => {
+      ComponentValidator.validateComponentType(action, 'iconButton', `Action at index ${index}`);
     });
+    this.component.actions = actions;
     return this;
   }
 
-  build(): AppBarComponent {
+  toJSON(): AppBarComponent {
     return this.component as AppBarComponent;
   }
 }
