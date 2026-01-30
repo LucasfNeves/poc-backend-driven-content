@@ -13,6 +13,14 @@ export interface TextComponent extends BaseComponent {
   };
 }
 
+export interface ImageComponent extends BaseComponent {
+  type: 'image';
+  src: string;
+  width?: number;
+  height?: number;
+  fit?: 'contain' | 'cover' | 'fill' | 'fitWidth' | 'fitHeight' | 'none' | 'scaleDown';
+}
+
 export interface IconComponent extends BaseComponent {
   type: 'icon';
   iconType?: 'material' | 'cupertino';
@@ -33,7 +41,7 @@ export interface IconButtonComponent extends BaseComponent {
 
 export interface AppBarComponent extends BaseComponent {
   type: 'appBar';
-  title?: TextComponent;
+  title?: TextComponent | ImageComponent;
   backgroundColor?: string;
   foregroundColor?: string;
   elevation?: number;
@@ -42,4 +50,9 @@ export interface AppBarComponent extends BaseComponent {
   actions?: IconButtonComponent[];
 }
 
-export type Component = TextComponent | IconComponent | IconButtonComponent | AppBarComponent;
+export type Component =
+  | TextComponent
+  | ImageComponent
+  | IconComponent
+  | IconButtonComponent
+  | AppBarComponent;
