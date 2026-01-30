@@ -1,5 +1,6 @@
 import { IconComponent } from '../types/types';
 import { ComponentValidator } from '../validators/ComponentValidator';
+import { applyOptions } from '../helpers/applyOptions';
 
 export class IconBuilder {
   private component: Partial<IconComponent> = {
@@ -35,13 +36,7 @@ export class IconBuilder {
     options?: { color?: string; size?: number; iconType?: 'material' | 'cupertino' },
   ): IconComponent {
     const builder = new IconBuilder().icon(icon);
-
-    if (options) {
-      if (options.color !== undefined) builder.color(options.color);
-      if (options.size !== undefined) builder.size(options.size);
-      if (options.iconType !== undefined) builder.iconType(options.iconType);
-    }
-
+    applyOptions(builder, options);
     return builder.toJSON();
   }
 
