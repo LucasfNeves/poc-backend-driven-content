@@ -1,5 +1,11 @@
-import { AppBarComponent, TextComponent, IconButtonComponent } from '../types/types';
+import {
+  AppBarComponent,
+  TextComponent,
+  ImageComponent,
+  IconButtonComponent,
+} from '../types/types';
 import { ComponentValidator } from '../validators/ComponentValidator';
+import { applyOptions } from '../helpers/applyOptions';
 
 export class AppBarBuilder {
   private component: Partial<AppBarComponent> = {
@@ -8,8 +14,25 @@ export class AppBarBuilder {
     centerTitle: false,
   };
 
-  title(title: TextComponent): this {
-    ComponentValidator.validateComponentType(title, 'text', 'Title');
+  static create(options?: {
+    title?: TextComponent | ImageComponent;
+    backgroundColor?: string;
+    foregroundColor?: string;
+    elevation?: number;
+    centerTitle?: boolean;
+    leading?: IconButtonComponent;
+    actions?: IconButtonComponent[];
+  }): AppBarComponent {
+    const builder = new AppBarBuilder();
+    applyOptions(builder, options);
+    return builder.toJSON();
+  }
+
+  title(title: TextComponent | ImageComponent): this {
+    const validTypes = ['text', 'image'];
+    if (!validTypes.includes(title.type)) {
+      throw new Error('Title must be a text or image component');
+    }
     this.component.title = title;
     return this;
   }
