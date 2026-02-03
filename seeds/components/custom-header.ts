@@ -1,8 +1,8 @@
-import { TextVO } from '@/domain/valueObjects/TextVO';
+import { TextVO } from '@/domain/components/valueObjects/TextVO';
 import { tokens } from '../tokens/design-tokens';
-import { IconVO } from '@/domain/valueObjects/IconVO';
-import { IconButtonVO } from '@/domain/valueObjects/IconButtonVO';
-import { AppBarVO } from '@/domain/valueObjects/AppBarVO';
+import { IconVO } from '@/domain/components/valueObjects/IconVO';
+import { IconButtonVO } from '@/domain/components/valueObjects/IconButtonVO';
+import { AppBarVO } from '@/domain/components/valueObjects/AppBarVO';
 
 const titleText = TextVO.createJSON({
   data: 'MOBi',
