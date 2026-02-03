@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { globalErrorHandler } from '@/infrastructure/http/middlewares/errorHandler';
+import { globalErrorHandler } from '@/infrastructure/http/plugins/errorHandler';
 import websocketPlugin from '@/infrastructure/http/plugins/websocket';
 import routesPlugin from '@/infrastructure/http/plugins/routes';
 
