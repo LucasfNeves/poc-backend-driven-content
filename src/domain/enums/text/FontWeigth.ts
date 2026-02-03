@@ -8,6 +8,4 @@ export enum FontWeight {
   W700 = 'w700',
   W800 = 'w800',
   W900 = 'w900',
-  NORMAL = FontWeight.W400,
-  BOLD = FontWeight.W700,
 }
