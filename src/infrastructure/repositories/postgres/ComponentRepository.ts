@@ -1,7 +1,7 @@
 import { Component } from '@/domain/entities/Component';
 import { IComponentRepository } from '@/domain/interfaces/IComponentRepository';
 import { prisma } from '@/infrastructure/database/prisma/client';
-import { Component as ComponentType } from '@/domain/components/types/types';
+import { ValidatedComponent } from '@/shared/schemas/componentSchema/componentSchema';
 
 export class ComponentRepository implements IComponentRepository {
   private toEntity(data: {
@@ -13,10 +13,10 @@ export class ComponentRepository implements IComponentRepository {
     createdAt: Date;
     updatedAt: Date;
   }): Component {
-    return Component.fromPersistence({
+    return Component.reconstitute({
       id: data.id,
       name: data.name,
-      component: data.config as ComponentType,
+      component: data.config as ValidatedComponent,
       version: data.version,
       isActive: data.isActive,
       createdAt: data.createdAt,
@@ -24,7 +24,7 @@ export class ComponentRepository implements IComponentRepository {
     });
   }
 
-  private serializeComponent(component: ComponentType) {
+  private serializeComponent(component: ValidatedComponent) {
     return JSON.parse(JSON.stringify(component));
   }
 
