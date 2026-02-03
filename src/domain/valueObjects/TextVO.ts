@@ -1,5 +1,5 @@
 import { textComponentSchema } from '@/shared/schemas/componentSchema/textComponentSchema';
-import { isEqual } from 'lodash';
+import lodash from 'lodash';
 import { z } from 'zod';
 
 export type TextComponentSchema = z.infer<typeof textComponentSchema>;
@@ -26,7 +26,7 @@ export class TextVO {
 
   equals(other: TextVO): boolean {
     if (!(other instanceof TextVO)) return false;
-    return isEqual(this.props, other.props);
+    return lodash.isEqual(this.props, other.props);
   }
 
   toJSON(): TextComponentSchema {

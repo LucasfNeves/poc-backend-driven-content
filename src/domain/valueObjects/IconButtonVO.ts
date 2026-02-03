@@ -1,5 +1,5 @@
 import { iconButtonComponentSchema } from '@/shared/schemas/componentSchema/iconButtonComponentSchema';
-import { isEqual } from 'lodash';
+import lodash from 'lodash';
 import { z } from 'zod';
 
 export type IconButtonComponentSchema = z.infer<typeof iconButtonComponentSchema>;
@@ -28,7 +28,7 @@ export class IconButtonVO {
 
   equals(other: IconButtonVO): boolean {
     if (!(other instanceof IconButtonVO)) return false;
-    return isEqual(this.props, other.props);
+    return lodash.isEqual(this.props, other.props);
   }
 
   toJSON(): IconButtonComponentSchema {

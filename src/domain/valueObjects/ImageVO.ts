@@ -1,5 +1,5 @@
 import { imageComponentSchema } from '@/shared/schemas/componentSchema/imageComponentSchema';
-import { isEqual } from 'lodash';
+import lodash from 'lodash';
 import { z } from 'zod';
 
 export type ImageComponentSchema = z.infer<typeof imageComponentSchema>;
@@ -26,7 +26,7 @@ export class ImageVO {
 
   equals(other: ImageVO): boolean {
     if (!(other instanceof ImageVO)) return false;
-    return isEqual(this.props, other.props);
+    return lodash.isEqual(this.props, other.props);
   }
 
   toJSON(): ImageComponentSchema {

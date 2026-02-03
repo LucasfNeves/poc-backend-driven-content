@@ -2,7 +2,7 @@ import {
   appBarComponentSchema,
   AppBarComponentSchema,
 } from '@/shared/schemas/componentSchema/appBarComponentSchema';
-import { isEqual } from 'lodash';
+import lodash from 'lodash';
 
 export class AppBarVO {
   private constructor(private readonly props: AppBarComponentSchema) {}
@@ -26,7 +26,7 @@ export class AppBarVO {
 
   equals(other: AppBarVO): boolean {
     if (!(other instanceof AppBarVO)) return false;
-    return isEqual(this.props, other.props);
+    return lodash.isEqual(this.props, other.props);
   }
 
   toJSON(): AppBarComponentSchema {
