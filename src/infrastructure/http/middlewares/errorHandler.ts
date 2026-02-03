@@ -8,7 +8,7 @@ import {
   UnauthorizedError as DomainUnauthorizedError,
   ForbiddenError as DomainForbiddenError,
 } from '@/shared/errors/AppErrors';
-import { ComponentValidationError } from '@/domain/components/errors/ComponentValidationError';
+import { ComponentValidationError } from '@/shared/errors/ComponentValidationError';
 
 function getDomainErrorStatusCode(error: AppError): number {
   if (error instanceof DomainValidationError) return 400;
