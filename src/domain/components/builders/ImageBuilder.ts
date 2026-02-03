@@ -1,5 +1,4 @@
 import { ImageComponent } from '../types/types';
-import { ComponentValidator } from '../validators/ComponentValidator';
 import { applyOptions } from '../helpers/applyOptions';
 
 export class ImageBuilder {
@@ -8,19 +7,16 @@ export class ImageBuilder {
   };
 
   src(source: string): this {
-    ComponentValidator.validateNotEmpty(source, 'Image source');
     this.component.src = source;
     return this;
   }
 
   width(value: number): this {
-    ComponentValidator.validatePositive(value, 'Image width');
     this.component.width = value;
     return this;
   }
 
   height(value: number): this {
-    ComponentValidator.validatePositive(value, 'Image height');
     this.component.height = value;
     return this;
   }

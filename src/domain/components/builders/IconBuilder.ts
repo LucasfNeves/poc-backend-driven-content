@@ -1,5 +1,4 @@
 import { IconComponent } from '../types/types';
-import { ComponentValidator } from '../validators/ComponentValidator';
 import { applyOptions } from '../helpers/applyOptions';
 
 export class IconBuilder {
@@ -9,7 +8,6 @@ export class IconBuilder {
   };
 
   icon(name: string): this {
-    ComponentValidator.validateNotEmpty(name, 'Icon name');
     this.component.icon = name;
     return this;
   }
@@ -20,13 +18,11 @@ export class IconBuilder {
   }
 
   size(size: number): this {
-    ComponentValidator.validatePositive(size, 'Icon size');
     this.component.size = size;
     return this;
   }
 
   color(color: string): this {
-    ComponentValidator.validateColor(color);
     this.component.color = color;
     return this;
   }

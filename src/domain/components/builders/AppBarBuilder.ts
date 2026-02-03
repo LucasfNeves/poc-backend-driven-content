@@ -4,7 +4,6 @@ import {
   ImageComponent,
   IconButtonComponent,
 } from '../types/types';
-import { ComponentValidator } from '../validators/ComponentValidator';
 import { applyOptions } from '../helpers/applyOptions';
 
 export class AppBarBuilder {
@@ -22,6 +21,14 @@ export class AppBarBuilder {
     centerTitle?: boolean;
     leading?: IconButtonComponent;
     actions?: IconButtonComponent[];
+    shadowColor?: string;
+    surfaceTintColor?: string;
+    iconTheme?: { color?: string; size?: number; opacity?: number };
+    actionsIconTheme?: { color?: string; size?: number; opacity?: number };
+    toolbarHeight?: number;
+    leadingWidth?: number;
+    titleSpacing?: number;
+    titleTextAlign?: 'left' | 'right' | 'center' | 'justify' | 'start' | 'end';
   }): AppBarComponent {
     const builder = new AppBarBuilder();
     applyOptions(builder, options);
@@ -38,19 +45,16 @@ export class AppBarBuilder {
   }
 
   backgroundColor(color: string): this {
-    ComponentValidator.validateColor(color);
     this.component.backgroundColor = color;
     return this;
   }
 
   foregroundColor(color: string): this {
-    ComponentValidator.validateColor(color);
     this.component.foregroundColor = color;
     return this;
   }
 
   elevation(value: number): this {
-    ComponentValidator.validateNonNegative(value, 'Elevation');
     this.component.elevation = value;
     return this;
   }
@@ -61,7 +65,6 @@ export class AppBarBuilder {
   }
 
   leading(iconButton: IconButtonComponent): this {
-    ComponentValidator.validateComponentType(iconButton, 'iconButton', 'Leading');
     this.component.leading = iconButton;
     return this;
   }
@@ -70,10 +73,47 @@ export class AppBarBuilder {
     if (!Array.isArray(actions)) {
       throw new Error('Actions must be an array');
     }
-    actions.forEach((action, index) => {
-      ComponentValidator.validateComponentType(action, 'iconButton', `Action at index ${index}`);
-    });
     this.component.actions = actions;
+    return this;
+  }
+
+  shadowColor(color: string): this {
+    this.component.shadowColor = color;
+    return this;
+  }
+
+  surfaceTintColor(color: string): this {
+    this.component.surfaceTintColor = color;
+    return this;
+  }
+
+  iconTheme(theme: { color?: string; size?: number; opacity?: number }): this {
+    this.component.iconTheme = theme;
+    return this;
+  }
+
+  actionsIconTheme(theme: { color?: string; size?: number; opacity?: number }): this {
+    this.component.actionsIconTheme = theme;
+    return this;
+  }
+
+  toolbarHeight(value: number): this {
+    this.component.toolbarHeight = value;
+    return this;
+  }
+
+  leadingWidth(value: number): this {
+    this.component.leadingWidth = value;
+    return this;
+  }
+
+  titleSpacing(value: number): this {
+    this.component.titleSpacing = value;
+    return this;
+  }
+
+  titleTextAlign(align: 'left' | 'right' | 'center' | 'justify' | 'start' | 'end'): this {
+    this.component.titleTextAlign = align;
     return this;
   }
 
