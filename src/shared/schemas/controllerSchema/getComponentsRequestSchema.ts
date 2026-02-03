@@ -1,5 +1,5 @@
 import z from 'zod';
-import { uuidSchema, nameSchema } from './common';
+import { nameSchema, uuidSchema } from '../common';
 
 const cleanValue = (val: unknown) => (!val || val === 'null' || val === '' ? undefined : val);
 
