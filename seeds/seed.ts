@@ -1,235 +1,321 @@
+import { ValidatedComponent } from '@/shared/schemas/componentSchema/componentSchema';
 import * as components from './components';
-import { Component } from '@/domain/components/types/types';
 import { consola } from 'consola';
-
-// ============================================================================
-// Configuration
-// ============================================================================
-
-const API_URL = process.env.API_URL || 'http://localhost:3000/api/components';
-const REQUEST_TIMEOUT = 10000; // 10 seconds
-
-// ============================================================================
-// Types
-// ============================================================================
 
 interface ComponentDefinition {
   name: string;
-  component: Component;
+  component: ValidatedComponent;
 }
 
-interface ApiError {
-  message?: string;
-}
-
-interface ComponentResponse {
+interface ApiComponent {
   id: string;
   name: string;
 }
 
+interface ApiError {
+  message?: string;
+  error?: string;
+}
+
+type SeedCommand = 'create' | 'update' | 'delete';
+
 // ============================================================================
-// Data
+// CONFIGURATION
 // ============================================================================
 
-const componentsList: readonly ComponentDefinition[] = [
-  { name: 'custom-header', component: components.customHeader },
-] as const;
+class Config {
+  static readonly API_URL = process.env.API_URL ?? 'http://localhost:3000/api/components';
+
+  static readonly COMPONENTS: ComponentDefinition[] = [
+    { name: 'custom-header', component: components.customHeader },
+  ];
+
+  static readonly COMMANDS: Record<SeedCommand, string> = {
+    create: 'create',
+    update: 'update',
+    delete: 'delete',
+  } as const;
+}
 
 // ============================================================================
-// HTTP Client
+// CUSTOM ERRORS
 // ============================================================================
 
-class ApiClient {
-  private readonly baseUrl: string;
-  private readonly timeout: number;
-
-  constructor(baseUrl: string, timeout: number = REQUEST_TIMEOUT) {
-    this.baseUrl = baseUrl;
-    this.timeout = timeout;
+class ApiRequestError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode?: number,
+    public readonly endpoint?: string,
+  ) {
+    super(message);
+    this.name = 'ApiRequestError';
   }
+}
 
-  private async fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+class InvalidCommandError extends Error {
+  constructor(command: string) {
+    super(`Invalid command: "${command}". Use: create, update, or delete`);
+    this.name = 'InvalidCommandError';
+  }
+}
+
+// ============================================================================
+// API CLIENT
+// ============================================================================
+
+class ComponentApiClient {
+  constructor(private readonly baseUrl: string) {}
+
+  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
 
     try {
       const response = await fetch(url, {
         ...options,
-        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options?.headers,
+        },
       });
-      return response;
-    } finally {
-      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await this.parseErrorResponse(response);
+        throw new ApiRequestError(
+          errorData.message || `Request failed with status ${response.status}`,
+          response.status,
+          endpoint,
+        );
+      }
+
+      return await this.parseSuccessResponse<T>(response);
+    } catch (error) {
+      if (error instanceof ApiRequestError) {
+        throw error;
+      }
+      throw new ApiRequestError(
+        `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        undefined,
+        endpoint,
+      );
     }
   }
 
-  private async handleResponse<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-      const error: ApiError = await response.json().catch(() => ({}));
-      throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
+  private async parseErrorResponse(response: Response): Promise<ApiError> {
+    try {
+      return await response.json();
+    } catch {
+      return { message: response.statusText };
     }
-    return response.json();
   }
 
-  async post<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+  private async parseSuccessResponse<T>(response: Response): Promise<T> {
+    const contentType = response.headers.get('content-type');
+
+    if (contentType?.includes('application/json')) {
+      return await response.json();
+    }
+
+    return null as T;
+  }
+
+  async create(name: string, component: ValidatedComponent): Promise<void> {
+    await this.request('', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ name, component }),
     });
-    return this.handleResponse<T>(response);
   }
 
-  async put<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+  async update(name: string, component: ValidatedComponent): Promise<void> {
+    await this.request(`/${name}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ component }),
     });
-    return this.handleResponse<T>(response);
   }
 
-  async get<T>(endpoint: string = ''): Promise<T> {
-    const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`);
-    return this.handleResponse<T>(response);
-  }
-
-  async delete(endpoint: string): Promise<void> {
-    await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+  async delete(id: string): Promise<void> {
+    await this.request(`/${id}`, {
       method: 'DELETE',
     });
   }
+
+  async getAll(): Promise<ApiComponent[]> {
+    return this.request<ApiComponent[]>('');
+  }
 }
 
 // ============================================================================
-// Component Operations
+// SEED SERVICE
 // ============================================================================
 
-class ComponentSeeder {
-  constructor(private readonly client: ApiClient) {}
+class ComponentSeedService {
+  constructor(
+    private readonly apiClient: ComponentApiClient,
+    private readonly components: ComponentDefinition[],
+  ) {}
 
-  async createComponent(name: string, component: Component): Promise<void> {
+  async seedAll(): Promise<void> {
+    consola.start('Seeding components...');
+
+    for (const { name, component } of this.components) {
+      await this.seedOne(name, component);
+    }
+
+    consola.success(`✓ Seeded ${this.components.length} component(s)`);
+  }
+
+  async updateAll(): Promise<void> {
+    consola.start('Updating components...');
+
+    for (const { name, component } of this.components) {
+      await this.updateOne(name, component);
+    }
+
+    consola.success(`✓ Updated ${this.components.length} component(s)`);
+  }
+
+  async deleteAll(): Promise<void> {
+    consola.start('Deleting all components...');
+
+    const existingComponents = await this.apiClient.getAll();
+
+    if (existingComponents.length === 0) {
+      consola.info('No components to delete');
+      return;
+    }
+
+    await Promise.allSettled(
+      existingComponents.map(async (comp) => {
+        try {
+          await this.apiClient.delete(comp.id);
+          consola.success(`✓ Deleted: ${comp.name}`);
+        } catch (error) {
+          consola.error(`✗ Failed to delete ${comp.name}:`, error);
+        }
+      }),
+    );
+
+    consola.success(`✓ Deleted ${existingComponents.length} component(s)`);
+  }
+
+  private async seedOne(name: string, component: ValidatedComponent): Promise<void> {
     try {
-      await this.client.post('', { name, component });
-      consola.success('Created:', name);
+      await this.apiClient.create(name, component);
+      consola.success(`✓ Created: ${name}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      consola.error('Failed to create', name, ':', message);
+      consola.error(`✗ Failed to create ${name}:`, error);
       throw error;
     }
   }
 
-  async updateComponent(name: string, component: Component): Promise<void> {
+  private async updateOne(name: string, component: ValidatedComponent): Promise<void> {
     try {
-      await this.client.put(`/${name}`, { component });
-      consola.success('Updated:', name);
+      await this.apiClient.update(name, component);
+      consola.success(`✓ Updated: ${name}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      consola.error('Failed to update', name, ':', message);
+      consola.error(`✗ Failed to update ${name}:`, error);
       throw error;
     }
   }
+}
 
-  async deleteAllComponents(): Promise<void> {
+// ============================================================================
+// COMMAND EXECUTOR
+// ============================================================================
+
+class CommandExecutor {
+  constructor(private readonly seedService: ComponentSeedService) {}
+
+  private readonly commandMap: Record<SeedCommand, () => Promise<void>> = {
+    create: () => this.seedService.seedAll(),
+    update: () => this.seedService.updateAll(),
+    delete: () => this.seedService.deleteAll(),
+  };
+
+  async execute(command: string): Promise<void> {
+    if (!this.isValidCommand(command)) {
+      throw new InvalidCommandError(command);
+    }
+
+    await this.commandMap[command]();
+  }
+
+  private isValidCommand(command: string): command is SeedCommand {
+    return command in this.commandMap;
+  }
+
+  static getUsageMessage(): string {
+    return 'Usage: tsx seeds/seed.ts [create|update|delete]';
+  }
+}
+
+// ============================================================================
+// CLI HANDLER
+// ============================================================================
+
+class CliHandler {
+  constructor(private readonly executor: CommandExecutor) {}
+
+  async run(args: string[]): Promise<void> {
+    const command = args[2];
+
+    if (!command) {
+      consola.info(CommandExecutor.getUsageMessage());
+      process.exit(1);
+    }
+
     try {
-      const response = await this.client.get<ComponentResponse[]>('');
-
-      await Promise.all(
-        response.map(async (comp: ComponentResponse) => {
-          await this.client.delete(`/${comp.id}`);
-          consola.success('Deleted:', comp.name);
-        }),
-      );
+      await this.executor.execute(command);
+      process.exit(0);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      consola.error('Failed to delete components:', message);
-      throw error;
+      this.handleError(error);
+      process.exit(1);
     }
   }
 
-  async seed(components: readonly ComponentDefinition[]): Promise<void> {
-    consola.start('Seeding components via API...');
-
-    for (const { name, component } of components) {
-      await this.createComponent(name, component);
+  private handleError(error: unknown): void {
+    if (error instanceof InvalidCommandError) {
+      consola.error(error.message);
+      consola.info(CommandExecutor.getUsageMessage());
+      return;
     }
 
-    consola.success('Seed completed!');
-  }
-
-  async update(components: readonly ComponentDefinition[]): Promise<void> {
-    consola.start('Updating components via API...');
-
-    for (const { name, component } of components) {
-      await this.updateComponent(name, component);
+    if (error instanceof ApiRequestError) {
+      consola.error(`API Error [${error.statusCode ?? 'UNKNOWN'}]: ${error.message}`);
+      if (error.endpoint) {
+        consola.error(`Endpoint: ${error.endpoint}`);
+      }
+      return;
     }
 
-    consola.success('Update completed!');
-  }
+    if (error instanceof Error) {
+      consola.error(`Error: ${error.message}`);
+      return;
+    }
 
-  async clean(): Promise<void> {
-    consola.start('Cleaning all components...');
-    await this.deleteAllComponents();
-    consola.success('Clean completed!');
+    consola.error('Unknown error occurred');
   }
 }
 
 // ============================================================================
-// CLI Commands
+// DEPENDENCY INJECTION & BOOTSTRAP
 // ============================================================================
 
-type Command = 'create' | 'update' | 'delete';
+function bootstrap(): CliHandler {
+  const apiClient = new ComponentApiClient(Config.API_URL);
+  const seedService = new ComponentSeedService(apiClient, Config.COMPONENTS);
+  const executor = new CommandExecutor(seedService);
+  const cli = new CliHandler(executor);
 
-const VALID_COMMANDS: readonly Command[] = ['create', 'update', 'delete'] as const;
-
-function isValidCommand(cmd: string): cmd is Command {
-  return VALID_COMMANDS.includes(cmd as Command);
-}
-
-async function executeCommand(command: Command): Promise<void> {
-  const client = new ApiClient(API_URL);
-  const seeder = new ComponentSeeder(client);
-
-  switch (command) {
-    case 'create':
-      await seeder.seed(componentsList);
-      break;
-    case 'update':
-      await seeder.update(componentsList);
-      break;
-    case 'delete':
-      await seeder.clean();
-      break;
-  }
-}
-
-function showUsage(): void {
-  consola.info(`Usage: tsx seeds/seed.ts [${VALID_COMMANDS.join('|')}]`);
-  consola.info('Commands:');
-  consola.info('  create  - Create all components');
-  consola.info('  update  - Update all components');
-  consola.info('  delete  - Delete all components');
+  return cli;
 }
 
 // ============================================================================
-// Main
+// ENTRY POINT
 // ============================================================================
 
 async function main(): Promise<void> {
-  const command = process.argv[2];
-
-  if (!command || !isValidCommand(command)) {
-    showUsage();
-    process.exit(1);
-  }
-
-  try {
-    await executeCommand(command);
-    process.exit(0);
-  } catch {
-    consola.fail('Operation failed');
-    process.exit(1);
-  }
+  const cli = bootstrap();
+  await cli.run(process.argv);
 }
 
 main();
