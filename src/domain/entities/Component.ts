@@ -1,11 +1,13 @@
-import { validateComponent } from '../components/schemas/componentSchema';
-import { Component as ComponentType } from '../components/types/types';
+import {
+  componentSchema,
+  ValidatedComponent,
+} from '../../shared/schemas/componentSchema/componentSchema';
 import { InputJsonValue } from '@prisma/client/runtime/client';
 
 export interface ComponentMetadata {
   id: string;
   name: string;
-  component: ComponentType;
+  component: ValidatedComponent;
   version: number;
   isActive: boolean;
   createdAt: Date;
@@ -16,7 +18,7 @@ export class Component {
   private constructor(private readonly props: ComponentMetadata) {}
 
   static create(name: string, component: unknown): Component {
-    const validated = validateComponent(component);
+    const validated = componentSchema.parse(component);
 
     return new Component({
       id: crypto.randomUUID(),
@@ -29,12 +31,12 @@ export class Component {
     });
   }
 
-  static fromPersistence(data: ComponentMetadata): Component {
+  static reconstitute(data: ComponentMetadata): Component {
     return new Component(data);
   }
 
   updateComponent(newComponent: unknown): Component {
-    const validated = validateComponent(newComponent);
+    const validated = componentSchema.parse(newComponent);
 
     return new Component({
       ...this.props,
@@ -42,6 +44,10 @@ export class Component {
       version: this.props.version + 1,
       updatedAt: new Date(),
     });
+  }
+
+  equals(other: Component): boolean {
+    return this.props.id === other.id;
   }
 
   toJSON(): ComponentMetadata {
@@ -60,7 +66,7 @@ export class Component {
     return this.props.name;
   }
 
-  get component(): ComponentType {
+  get component(): ValidatedComponent {
     return this.props.component;
   }
 

@@ -3,13 +3,16 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copiar arquivos de dependências
-COPY package.json package-lock.json* ./
+COPY package*.json ./
 
 # Copiar o schema do Prisma antes de instalar
 COPY prisma ./prisma
 
 # Instalar dependências
-RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+RUN npm install
+
+# Gerar Prisma Client
+RUN npx prisma generate
 
 # Copiar o resto do código
 COPY . .
@@ -20,4 +23,5 @@ USER node
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+# Não roda automaticamente, deixa o docker-compose rodar
+CMD ["sh"]

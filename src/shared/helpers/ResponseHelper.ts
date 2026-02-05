@@ -43,11 +43,25 @@ export const validationError = (errors: Array<{ field: string; message: string }
 };
 
 export const fromZodError = (error: ZodError): IResponse => {
-  const errors = error.issues.map((issue) => ({
-    field: issue.path.join('.'),
-    message: issue.message,
-  }));
-  return validationError(errors);
+  const firstIssue = error.issues[0];
+  const field = String(firstIssue?.path[firstIssue.path.length - 1] || firstIssue?.path.join('.'));
+  let message = firstIssue?.message?.replace(/\\/g, '').replace(/"/g, "'") || 'Invalid value';
+
+  if (message.includes('received undefined')) {
+    message = 'is required';
+  } else if (message.includes('Invalid input')) {
+    message = message.replace('Invalid input: ', '');
+  } else if (message.includes('Invalid string')) {
+    message = message.replace('Invalid string: ', '');
+  }
+
+  return {
+    statusCode: 400,
+    body: {
+      error: 'ValidationError',
+      message: `${field} ${message}`,
+    },
+  };
 };
 
 export const notFound = (message: string): IResponse => {

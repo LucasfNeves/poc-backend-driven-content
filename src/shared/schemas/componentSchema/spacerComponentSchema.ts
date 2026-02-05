@@ -1,0 +1,7 @@
+import z from 'zod';
+
+export const spacerComponentSchema = z.object({
+  type: z.literal('spacer'),
+});
+
+export type SpacerComponentSchema = z.infer<typeof spacerComponentSchema>;

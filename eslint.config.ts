@@ -3,6 +3,8 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import { defineConfig } from 'eslint/config';
 
+// Prettier handles indentation
+
 export default defineConfig([
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
@@ -10,14 +12,14 @@ export default defineConfig([
     extends: ['js/recommended'],
     languageOptions: { globals: globals.node },
     rules: {
-      indent: ['error', 2],
+      indent: 'off',
     },
   },
   ...tseslint.configs.recommended,
   {
     files: ['**/*.ts'],
     rules: {
-      indent: ['error', 2],
+      indent: 'off',
     },
   },
 ]);

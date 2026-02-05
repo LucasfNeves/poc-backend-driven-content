@@ -3,8 +3,8 @@ import { ResponseHelper } from '@/shared/helpers/ResponseHelper';
 import { AppError } from '@/shared/errors/AppErrors';
 import { IResponse } from '@/domain/interfaces/IController';
 import { ZodError } from 'zod';
-import { saveComponentRequestSchema } from './schemas/saveComponentRequestSchema';
 import { FastifyInstance } from 'fastify';
+import { saveComponentRequestSchema } from '@/shared/schemas/controllerSchema/saveComponentRequestSchema';
 
 export class SaveComponentController {
   public fastify?: FastifyInstance;

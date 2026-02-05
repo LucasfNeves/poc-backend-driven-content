@@ -26,7 +26,7 @@ interface UpdateComponentBody {
 
 export async function componentRoutes(fastify: FastifyInstance) {
   fastify.post<{ Body: SaveComponentBody }>(
-    '/components',
+    '/',
     async (request: FastifyRequest<{ Body: SaveComponentBody }>, reply: FastifyReply) => {
       const controller = makeSaveComponentController(fastify);
       const response = await controller.handle({ body: request.body });
@@ -34,14 +34,14 @@ export async function componentRoutes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get('/components', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     const controller = makeGetComponentsController();
     const response = await controller.handle({ query: request.query });
     return reply.status(response.statusCode).send(response.body);
   });
 
   fastify.put<{ Params: UpdateComponentParams; Body: UpdateComponentBody }>(
-    '/components/:name',
+    '/:name',
     async (
       request: FastifyRequest<{ Params: UpdateComponentParams; Body: UpdateComponentBody }>,
       reply: FastifyReply,
@@ -53,7 +53,7 @@ export async function componentRoutes(fastify: FastifyInstance) {
   );
 
   fastify.delete<{ Params: GetComponentByIdParams }>(
-    '/components/:id',
+    '/:id',
     async (request: FastifyRequest<{ Params: GetComponentByIdParams }>, reply: FastifyReply) => {
       const controller = makeDeleteComponentController(fastify);
       const response = await controller.handle({ params: request.params });

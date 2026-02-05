@@ -3,8 +3,8 @@ import { ResponseHelper } from '@/shared/helpers/ResponseHelper';
 import { AppError } from '@/shared/errors/AppErrors';
 import { IResponse } from '@/domain/interfaces/IController';
 import { ZodError } from 'zod';
-import { deleteComponentRequestSchema } from './schemas/deleteComponentRequestSchema';
 import { FastifyInstance } from 'fastify';
+import { deleteComponentRequestSchema } from '@/shared/schemas/controllerSchema/deleteComponentRequestSchema';
 
 export class DeleteComponentController {
   public fastify?: FastifyInstance;

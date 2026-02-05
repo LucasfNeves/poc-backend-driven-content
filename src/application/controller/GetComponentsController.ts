@@ -4,7 +4,7 @@ import { AppError } from '@/shared/errors/AppErrors';
 import { IResponse } from '@/domain/interfaces/IController';
 import { Component } from '@/domain/entities/Component';
 import { ZodError } from 'zod';
-import { getComponentsRequestSchema } from './schemas/getComponentsRequestSchema';
+import { getComponentsRequestSchema } from '@/shared/schemas/controllerSchema/getComponentsRequestSchema';
 
 export class GetComponentsController {
   constructor(private readonly useCase: GetComponentsUseCase) {}

@@ -13,7 +13,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model Screen {
+model Component {
   id        String   @id @default(uuid())
   name      String   @unique
   config    Json
@@ -22,5 +22,5 @@ model Screen {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("screens")
+  @@map("components")
 }
