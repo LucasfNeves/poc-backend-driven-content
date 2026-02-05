@@ -28,6 +28,7 @@ class Config {
 
   static readonly COMPONENTS: ComponentDefinition[] = [
     { name: 'custom-header', component: components.customHeader },
+    { name: 'welcome-screen', component: components.welcomeScreen },
   ];
 
   static readonly COMMANDS: Record<SeedCommand, string> = {
