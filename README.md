@@ -2,24 +2,33 @@
 
 API REST para gerenciamento de componentes UI com suporte a WebSocket para live preview.
 
-## Índice
+## 📋 Índice
 
 - [Sobre](#sobre)
 - [Tecnologias](#tecnologias)
 - [Instalação](#instalação)
 - [Configuração](#configuração)
 - [Uso](#uso)
-- [Seeds de Componentes](#seeds-de-componentes)
 - [API Endpoints](#api-endpoints)
+- [Validação de Componentes](#validação-de-componentes)
+- [Exemplos de Componentes](#exemplos-de-componentes)
 - [WebSocket](#websocket)
+- [Seeds](#seeds)
 - [Docker](#docker)
-- [Testes](#testes)
+- [Estrutura do Projeto](#estrutura-do-projeto)
 
-## Sobre
+## 🎯 Sobre
 
-Sistema de Backend Driven UI que permite criar, atualizar e gerenciar componentes de interface através de uma API REST, com notificações em tempo real via WebSocket para desenvolvimento.
+Sistema de Backend Driven UI que permite criar, atualizar e gerenciar componentes de interface através de uma API REST, com validação rigorosa e notificações em tempo real via WebSocket.
 
-## Tecnologias
+**Principais características:**
+- ✅ Validação rigorosa de schemas com Zod
+- ✅ Compatibilidade garantida com Flutter
+- ✅ Live preview via WebSocket
+- ✅ Validação recursiva de componentes aninhados
+- ✅ Type-safe com TypeScript
+
+## 🛠 Tecnologias
 
 - **Node.js** + **TypeScript**
 - **Fastify** - Framework web
@@ -29,7 +38,7 @@ Sistema de Backend Driven UI que permite criar, atualizar e gerenciar componente
 - **Zod** - Validação de schemas
 - **Docker** - Containerização
 
-## Instalação
+## 📦 Instalação
 
 ```bash
 # Clone o repositório
@@ -46,28 +55,22 @@ cp .env.example .env
 npx prisma migrate dev
 ```
 
-## Configuração
+## ⚙️ Configuração
 
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-# Database
 DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
-
-# Server
 PORT=3000
 HOST=0.0.0.0
-
-# API de Produção (deixe vazio para desenvolvimento)
 API_URL=""
 ```
 
-## Uso
+## 🚀 Uso
 
 ### Desenvolvimento
 
 ```bash
-# Inicia o servidor em modo watch
 npm run dev
 # ou
 make dev
@@ -76,56 +79,409 @@ make dev
 ### Produção
 
 ```bash
-# Build
 npm run build
-
-# Start
 npm start
 ```
 
-## Seeds de Componentes
+## 📡 API Endpoints
 
-Os seeds permitem popular o banco de dados com componentes pré-definidos.
+### Listar todos os componentes
 
-### Estrutura
+```http
+GET /api/components
+```
+
+**Resposta:**
+```json
+[
+  {
+    "id": "uuid",
+    "name": "welcome-text",
+    "component": { ... },
+    "version": 1,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]
+```
+
+### Buscar componente por nome
+
+```http
+GET /api/components/:name
+```
+
+### Criar componente
+
+```http
+POST /api/components
+Content-Type: application/json
+
+{
+  "name": "my-component",
+  "component": { ... }
+}
+```
+
+### Atualizar componente
+
+```http
+PUT /api/components/:name
+Content-Type: application/json
+
+{
+  "component": { ... }
+}
+```
+
+### Deletar componente
+
+```http
+DELETE /api/components/:id
+```
+
+## ✅ Validação de Componentes
+
+A API valida rigorosamente todos os componentes para garantir compatibilidade com o Flutter.
+
+### Validações Implementadas
+
+| Validação | Descrição |
+|-----------|-----------|
+| **Propriedades obrigatórias** | Campos como `data` em `text` são obrigatórios |
+| **Tipos corretos** | Números devem ser positivos onde aplicável |
+| **Enums validados** | `fontWeight` aceita apenas `w100`-`w900` |
+| **Sem propriedades extras** | `.strict()` rejeita campos não definidos |
+| **Validação recursiva** | Componentes aninhados também são validados |
+
+### Tipos de Componentes Suportados
+
+- `text` - Texto com estilo
+- `icon` - Ícones Material
+- `image` - Imagens
+- `iconButton` - Botão com ícone
+- `appBar` - Barra de aplicativo
+- `sizedBox` - Caixa com tamanho fixo
+- `spacer` - Espaçador flexível
+- `column` - Layout vertical
+- `row` - Layout horizontal
+- `container` - Container com decoração
+- `padding` - Espaçamento interno
+- `scaffold` - Estrutura de tela
+
+## 📝 Exemplos de Componentes
+
+### Text Component
+
+**✅ Válido:**
+```json
+{
+  "name": "welcome-text",
+  "component": {
+    "type": "text",
+    "data": "Bem-vindo!",
+    "style": {
+      "fontSize": 24,
+      "fontWeight": "w700",
+      "color": 4294198070
+    }
+  }
+}
+```
+
+**❌ Inválido:**
+```json
+{
+  "name": "invalid-text",
+  "component": {
+    "type": "text",
+    "data": "Test",
+    "style": {
+      "fontWeight": "bold"
+    }
+  }
+}
+```
+❌ Erro: `Invalid enum value. Expected 'w100' | 'w200' | ... | 'w900', received 'bold'`
+
+### Column Component
+
+**✅ Válido:**
+```json
+{
+  "name": "home-column",
+  "component": {
+    "type": "column",
+    "mainAxisAlignment": "center",
+    "crossAxisAlignment": "center",
+    "spacing": 10,
+    "children": [
+      {
+        "type": "text",
+        "data": "Título",
+        "style": {
+          "fontSize": 32,
+          "fontWeight": "w700"
+        }
+      },
+      {
+        "type": "text",
+        "data": "Subtítulo",
+        "style": {
+          "fontSize": 16
+        }
+      }
+    ]
+  }
+}
+```
+
+**❌ Inválido:**
+```json
+{
+  "name": "invalid-column",
+  "component": {
+    "type": "column",
+    "children": [
+      {
+        "type": "text",
+        "style": {
+          "fontSize": 16
+        }
+      }
+    ]
+  }
+}
+```
+❌ Erro: `Required` (falta `data` obrigatório)
+
+### Row Component
+
+**✅ Válido:**
+```json
+{
+  "name": "action-row",
+  "component": {
+    "type": "row",
+    "mainAxisAlignment": "spaceBetween",
+    "children": [
+      {
+        "type": "text",
+        "data": "Left"
+      },
+      {
+        "type": "text",
+        "data": "Right"
+      }
+    ]
+  }
+}
+```
+
+**❌ Inválido:**
+```json
+{
+  "name": "invalid-row",
+  "component": {
+    "type": "row",
+    "mainAxisAlignment": "middle",
+    "children": [
+      {
+        "type": "text",
+        "data": "Test"
+      }
+    ]
+  }
+}
+```
+❌ Erro: `Invalid enum value. Expected 'start' | 'end' | 'center' | 'spaceBetween' | 'spaceAround' | 'spaceEvenly', received 'middle'`
+
+### Container Component
+
+**✅ Válido:**
+```json
+{
+  "name": "card-container",
+  "component": {
+    "type": "container",
+    "width": 200,
+    "height": 100,
+    "color": 4294967295,
+    "child": {
+      "type": "text",
+      "data": "Inside Container"
+    }
+  }
+}
+```
+
+**❌ Inválido:**
+```json
+{
+  "name": "invalid-container",
+  "component": {
+    "type": "container",
+    "width": -100,
+    "child": {
+      "type": "text",
+      "data": "Test"
+    }
+  }
+}
+```
+❌ Erro: `Width must be a positive number`
+
+### Padding Component
+
+**✅ Válido:**
+```json
+{
+  "name": "padded-text",
+  "component": {
+    "type": "padding",
+    "padding": {
+      "top": 16,
+      "left": 16,
+      "right": 16,
+      "bottom": 16
+    },
+    "child": {
+      "type": "text",
+      "data": "Hello World",
+      "style": {
+        "fontSize": 20,
+        "fontWeight": "w700"
+      }
+    }
+  }
+}
+```
+
+**❌ Inválido:**
+```json
+{
+  "name": "invalid-padding",
+  "component": {
+    "type": "padding",
+    "padding": {
+      "top": -10
+    },
+    "child": {
+      "type": "text",
+      "data": "Test"
+    }
+  }
+}
+```
+❌ Erro: `Top padding must be 0 or greater`
+
+### Scaffold Component
+
+**✅ Válido:**
+```json
+{
+  "name": "main-scaffold",
+  "component": {
+    "type": "scaffold",
+    "backgroundColor": 4294967295,
+    "appBar": {
+      "type": "appBar",
+      "title": {
+        "type": "text",
+        "data": "My App"
+      }
+    },
+    "body": {
+      "type": "text",
+      "data": "Body content"
+    }
+  }
+}
+```
+
+**❌ Inválido:**
+```json
+{
+  "name": "invalid-scaffold",
+  "component": {
+    "type": "scaffold",
+    "body": {
+      "type": "text",
+      "style": {
+        "fontSize": 20
+      }
+    }
+  }
+}
+```
+❌ Erro: `Required` (falta `data` no text)
+
+## 🔄 WebSocket
+
+Conecte-se ao WebSocket para receber atualizações em tempo real:
 
 ```
-seeds/
-├── components/
-│   ├── main-appbar.ts      # AppBar principal
-│   ├── welcome-text.ts     # Texto de boas-vindas
-│   ├── home-screen.ts      # Tela home completa
-│   └── index.ts            # Exporta todos
-└── seed.ts                 # Script principal
+ws://localhost:3000/ws/live-preview
 ```
+
+### Eventos
+
+| Evento | Descrição |
+|--------|-----------|
+| `component:created` | Componente criado |
+| `component:updated` | Componente atualizado |
+| `component:deleted` | Componente deletado |
+
+### Exemplo (Flutter)
+
+```dart
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+final channel = WebSocketChannel.connect(
+  Uri.parse('ws://SEU_IP:3000/ws/live-preview'),
+);
+
+channel.stream.listen((message) {
+  final data = json.decode(message);
+  if (data['type'] == 'component:updated') {
+    // Recarregar componente
+  }
+});
+```
+
+## 🌱 Seeds
 
 ### Comandos
 
 ```bash
-# Criar componentes (primeira vez)
+# Criar componentes
 npm run seed:create
 make seed-create
 
-# Atualizar componentes existentes
+# Atualizar componentes
 npm run seed:update
 make seed-update
 
-# Deletar todos componentes
+# Deletar componentes
 npm run seed:delete
 make seed-delete
 
-# Resetar banco e criar componentes
+# Resetar banco
 make db-reset
 ```
 
 ### Adicionar Novo Componente
 
-1. Crie o arquivo em `seeds/components/meu-componente.ts`:
+1. Crie `seeds/components/meu-componente.ts`:
 
 ```typescript
 import { TextBuilder } from '@/domain/components/builders/TextBuilder';
 
-export const meuComponente = new TextBuilder().data('Meu texto').fontSize(18).build();
+export const meuComponente = new TextBuilder()
+  .data('Meu texto')
+  .fontSize(18)
+  .build();
 ```
 
 2. Exporte em `seeds/components/index.ts`:
@@ -138,7 +494,6 @@ export { meuComponente } from './meu-componente';
 
 ```typescript
 const componentsList: ComponentDefinition[] = [
-  // ... outros
   { name: 'meu-componente', component: components.meuComponente },
 ];
 ```
@@ -149,495 +504,9 @@ const componentsList: ComponentDefinition[] = [
 npm run seed:create
 ```
 
-## API Endpoints
+## 🐳 Docker
 
-### Componentes
-
-#### Listar todos
-
-```http
-GET /api/components
-```
-
-#### Buscar por nome
-
-```http
-GET /api/components/:name
-```
-
-#### Criar
-
-```http
-POST /api/components
-Content-Type: application/json
-
-{
-  "name": "my-component",
-  "component": { ... }
-}
-```
-
-#### Atualizar
-
-```http
-PUT /api/components/:name
-Content-Type: application/json
-
-{
-  "component": { ... }
-}
-```
-
-#### Deletar
-
-```http
-DELETE /api/components/:id
-```
-
-### Criando Componentes via JSON
-
-Você pode criar componentes diretamente via API usando JSON:
-
-#### Exemplo: Text Component
-
-```json
-{
-  "name": "welcome-text",
-  "component": {
-    "type": "Text",
-    "properties": {
-      "data": "Bem-vindo!",
-      "fontSize": 24,
-      "fontWeight": "bold",
-      "color": "#FF5722"
-    }
-  }
-}
-```
-
-#### Exemplo: AppBar Component
-
-```json
-{
-  "name": "main-appbar",
-  "component": {
-    "type": "AppBar",
-    "properties": {
-      "title": {
-        "type": "Text",
-        "properties": {
-          "data": "Meu App",
-          "fontSize": 20,
-          "color": "#FFFFFF"
-        }
-      },
-      "backgroundColor": "#2196F3",
-      "elevation": 4
-    }
-  }
-}
-```
-
-#### Exemplo: Column com múltiplos filhos
-
-```json
-{
-  "name": "home-screen",
-  "component": {
-    "type": "Column",
-    "properties": {
-      "mainAxisAlignment": "center",
-      "crossAxisAlignment": "center",
-      "children": [
-        {
-          "type": "Text",
-          "properties": {
-            "data": "Título",
-            "fontSize": 32,
-            "fontWeight": "bold"
-          }
-        },
-        {
-          "type": "Text",
-          "properties": {
-            "data": "Subtítulo",
-            "fontSize": 16,
-            "color": "#757575"
-          }
-        }
-      ]
-    }
-  }
-}
-```
-
-#### Exemplo: Container com padding
-
-```json
-{
-  "name": "card-component",
-  "component": {
-    "type": "Container",
-    "properties": {
-      "padding": {
-        "type": "EdgeInsets",
-        "properties": {
-          "left": 16,
-          "top": 16,
-          "right": 16,
-          "bottom": 16
-        }
-      },
-      "decoration": {
-        "type": "BoxDecoration",
-        "properties": {
-          "color": "#FFFFFF",
-          "borderRadius": 8,
-          "boxShadow": [
-            {
-              "color": "#00000029",
-              "blurRadius": 4,
-              "offset": { "dx": 0, "dy": 2 }
-            }
-          ]
-        }
-      },
-      "child": {
-        "type": "Text",
-        "properties": {
-          "data": "Conteúdo do Card"
-        }
-      }
-    }
-  }
-}
-```
-
-## 🔄 WebSocket
-
-Conecte-se ao WebSocket para receber atualizações em tempo real:
-
-```
-ws://localhost:3000/ws/live-preview
-```
-
-### Eventos
-
-- `component:created` - Componente criado
-- `component:updated` - Componente atualizado
-- `component:deleted` - Componente deletado
-
-### Exemplo (Flutter)
-
-```dart
-final channel = WebSocketChannel.connect(
-  Uri.parse('ws://SEU_IP:3000/ws/live-preview'),
-);
-
-channel.stream.listen((message) {
-  print('Atualização recebida: $message');
-});
-```
-
-## 📱 Consumindo no Flutter
-
-### 1. Buscar componente da API
-
-```dart
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-Future<Map<String, dynamic>> fetchComponent(String name) async {
-  final response = await http.get(
-    Uri.parse('http://SEU_IP:3000/api/components/$name'),
-  );
-
-  if (response.statusCode == 200) {
-    return json.decode(response.body);
-  } else {
-    throw Exception('Failed to load component');
-  }
-}
-```
-
-### 2. Renderizar componente dinamicamente
-
-Usando o exemplo do **home-screen** (Column com múltiplos filhos):
-
-```dart
-import 'package:flutter/material.dart';
-
-class DynamicComponentScreen extends StatefulWidget {
-  @override
-  _DynamicComponentScreenState createState() => _DynamicComponentScreenState();
-}
-
-class _DynamicComponentScreenState extends State<DynamicComponentScreen> {
-  Map<String, dynamic>? componentData;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadComponent();
-  }
-
-  Future<void> loadComponent() async {
-    try {
-      final data = await fetchComponent('home-screen');
-      setState(() {
-        componentData = data['component'];
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error: $e');
-      setState(() => isLoading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(title: Text('Backend Driven UI')),
-      body: componentData != null
-          ? buildComponent(componentData!)
-          : Center(child: Text('No component found')),
-    );
-  }
-
-  Widget buildComponent(Map<String, dynamic> component) {
-    final type = component['type'];
-    final properties = component['properties'] ?? {};
-
-    switch (type) {
-      case 'Column':
-        return Column(
-          mainAxisAlignment: _parseMainAxisAlignment(
-            properties['mainAxisAlignment'],
-          ),
-          crossAxisAlignment: _parseCrossAxisAlignment(
-            properties['crossAxisAlignment'],
-          ),
-          children: (properties['children'] as List? ?? [])
-              .map((child) => buildComponent(child))
-              .toList(),
-        );
-
-      case 'Text':
-        return Text(
-          properties['data'] ?? '',
-          style: TextStyle(
-            fontSize: properties['fontSize']?.toDouble() ?? 14.0,
-            fontWeight: _parseFontWeight(properties['fontWeight']),
-            color: _parseColor(properties['color']),
-          ),
-        );
-
-      case 'Container':
-        return Container(
-          padding: _parseEdgeInsets(properties['padding']),
-          decoration: _parseBoxDecoration(properties['decoration']),
-          child: properties['child'] != null
-              ? buildComponent(properties['child'])
-              : null,
-        );
-
-      default:
-        return Text('Unknown component: $type');
-    }
-  }
-
-  MainAxisAlignment _parseMainAxisAlignment(String? value) {
-    switch (value) {
-      case 'center':
-        return MainAxisAlignment.center;
-      case 'start':
-        return MainAxisAlignment.start;
-      case 'end':
-        return MainAxisAlignment.end;
-      case 'spaceBetween':
-        return MainAxisAlignment.spaceBetween;
-      case 'spaceAround':
-        return MainAxisAlignment.spaceAround;
-      case 'spaceEvenly':
-        return MainAxisAlignment.spaceEvenly;
-      default:
-        return MainAxisAlignment.start;
-    }
-  }
-
-  CrossAxisAlignment _parseCrossAxisAlignment(String? value) {
-    switch (value) {
-      case 'center':
-        return CrossAxisAlignment.center;
-      case 'start':
-        return CrossAxisAlignment.start;
-      case 'end':
-        return CrossAxisAlignment.end;
-      case 'stretch':
-        return CrossAxisAlignment.stretch;
-      default:
-        return CrossAxisAlignment.center;
-    }
-  }
-
-  FontWeight _parseFontWeight(String? value) {
-    switch (value) {
-      case 'bold':
-        return FontWeight.bold;
-      case 'normal':
-        return FontWeight.normal;
-      case 'w100':
-        return FontWeight.w100;
-      case 'w200':
-        return FontWeight.w200;
-      case 'w300':
-        return FontWeight.w300;
-      case 'w400':
-        return FontWeight.w400;
-      case 'w500':
-        return FontWeight.w500;
-      case 'w600':
-        return FontWeight.w600;
-      case 'w700':
-        return FontWeight.w700;
-      case 'w800':
-        return FontWeight.w800;
-      case 'w900':
-        return FontWeight.w900;
-      default:
-        return FontWeight.normal;
-    }
-  }
-
-  Color _parseColor(String? value) {
-    if (value == null) return Colors.black;
-    return Color(int.parse(value.replaceFirst('#', '0xFF')));
-  }
-
-  EdgeInsets? _parseEdgeInsets(Map<String, dynamic>? padding) {
-    if (padding == null) return null;
-    final props = padding['properties'] ?? {};
-    return EdgeInsets.only(
-      left: props['left']?.toDouble() ?? 0,
-      top: props['top']?.toDouble() ?? 0,
-      right: props['right']?.toDouble() ?? 0,
-      bottom: props['bottom']?.toDouble() ?? 0,
-    );
-  }
-
-  BoxDecoration? _parseBoxDecoration(Map<String, dynamic>? decoration) {
-    if (decoration == null) return null;
-    final props = decoration['properties'] ?? {};
-    return BoxDecoration(
-      color: _parseColor(props['color']),
-      borderRadius: props['borderRadius'] != null
-          ? BorderRadius.circular(props['borderRadius'].toDouble())
-          : null,
-    );
-  }
-}
-```
-
-### 3. Resultado
-
-O componente **home-screen** será renderizado como:
-
-```dart
-Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  crossAxisAlignment: CrossAxisAlignment.center,
-  children: [
-    Text(
-      'Título',
-      style: TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    Text(
-      'Subtítulo',
-      style: TextStyle(
-        fontSize: 16,
-        color: Color(0xFF757575),
-      ),
-    ),
-  ],
-)
-```
-
-### 4. Com WebSocket (Live Preview)
-
-```dart
-import 'package:web_socket_channel/web_socket_channel.dart';
-
-class LivePreviewScreen extends StatefulWidget {
-  @override
-  _LivePreviewScreenState createState() => _LivePreviewScreenState();
-}
-
-class _LivePreviewScreenState extends State<LivePreviewScreen> {
-  late WebSocketChannel channel;
-  Map<String, dynamic>? componentData;
-
-  @override
-  void initState() {
-    super.initState();
-    connectWebSocket();
-    loadComponent();
-  }
-
-  void connectWebSocket() {
-    channel = WebSocketChannel.connect(
-      Uri.parse('ws://SEU_IP:3000/ws/live-preview'),
-    );
-
-    channel.stream.listen((message) {
-      final data = json.decode(message);
-      if (data['type'] == 'component:updated') {
-        loadComponent(); // Recarrega o componente
-      }
-    });
-  }
-
-  Future<void> loadComponent() async {
-    final data = await fetchComponent('home-screen');
-    setState(() {
-      componentData = data['component'];
-    });
-  }
-
-  @override
-  void dispose() {
-    channel.sink.close();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Live Preview')),
-      body: componentData != null
-          ? buildComponent(componentData!)
-          : Center(child: CircularProgressIndicator()),
-    );
-  }
-
-  // ... métodos buildComponent, parsers, etc
-}
-```
-
-Agora quando você atualizar o componente via seed (`make seed-update`), o Flutter receberá a notificação e atualizará automaticamente!
-
-## Docker
-
-### Scripts disponíveis
+### Comandos
 
 ```bash
 # Subir containers
@@ -648,7 +517,7 @@ make up
 npm run docker:down
 make down
 
-# Acessar shell do container
+# Acessar shell
 npm run docker:exec
 make exec
 
@@ -659,29 +528,46 @@ make logs
 ### Docker Compose
 
 ```bash
-# Subir todos os serviços
 docker compose -f docker/docker-compose.yml up -d
-
-# Parar todos os serviços
 docker compose -f docker/docker-compose.yml down
 ```
 
-## 🧪 Testes
+## 📂 Estrutura do Projeto
 
-**Em desenvolvimento**
+```
+.
+├── src/
+│   ├── domain/              # Lógica de negócio
+│   │   ├── components/      # Builders e tipos
+│   │   ├── entities/        # Entidades
+│   │   └── interfaces/      # Contratos
+│   ├── application/         # Casos de uso
+│   │   ├── controller/      # Controllers
+│   │   └── use-cases/       # Use cases
+│   ├── infra/               # Infraestrutura
+│   │   ├── database/        # Configuração DB
+│   │   └── repositories/    # Repositórios
+│   ├── shared/              # Código compartilhado
+│   │   ├── schemas/         # Schemas Zod
+│   │   └── helpers/         # Utilitários
+│   └── server.ts            # Entrada
+├── seeds/                   # Seeds
+├── prisma/                  # Schema e migrations
+└── docker/                  # Docker configs
+```
 
 ## 📝 Scripts Disponíveis
 
 ```bash
 # Desenvolvimento
-npm run dev              # Inicia servidor em modo watch
+npm run dev              # Servidor em modo watch
 npm run build            # Build do projeto
-npm start                # Inicia servidor de produção
+npm start                # Servidor de produção
 
 # Qualidade de código
-npm run lint             # Verifica erros de lint
-npm run lint:fix         # Corrige erros de lint
-npm run format           # Formata código com Prettier
+npm run lint             # Verifica erros
+npm run lint:fix         # Corrige erros
+npm run format           # Formata código
 npm run format:check     # Verifica formatação
 
 # Seeds
@@ -692,32 +578,9 @@ npm run seed:delete      # Deleta componentes
 # Docker
 npm run docker:up        # Sobe containers
 npm run docker:down      # Para containers
-npm run docker:exec      # Acessa shell do container
+npm run docker:exec      # Acessa shell
 ```
 
-## 📂 Estrutura do Projeto
-
-```
-.
-├── src/
-│   ├── domain/              # Lógica de negócio
-│   │   ├── components/      # Builders e tipos de componentes
-│   │   └── interfaces/      # Interfaces e contratos
-│   ├── infra/               # Infraestrutura
-│   │   ├── database/        # Configuração do banco
-│   │   └── repositories/    # Repositórios
-│   ├── presentation/        # Camada de apresentação
-│   │   ├── controllers/     # Controllers
-│   │   └── routes/          # Rotas
-│   ├── shared/              # Código compartilhado
-│   │   └── helpers/         # Helpers e utilitários
-│   └── server.ts            # Entrada da aplicação
-├── seeds/                   # Seeds de componentes
-├── prisma/                  # Schema e migrations
-├── docker/                  # Configurações Docker
-└── README.md
-```
-
-## Licença
+## 📄 Licença
 
 ISC
