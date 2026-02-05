@@ -7,6 +7,8 @@ import {
   MaterialIcon,
   MaterialColor,
   ThemeColor,
+  MainAxisAlignment,
+  CrossAxisAlignment,
 } from '@/domain/enums';
 
 export const fontWeightSchema = SchemaGenerator.fromEnum(FontWeight).describe(
@@ -17,6 +19,12 @@ export const textAlignSchema = SchemaGenerator.fromEnum(TextAlign).describe(
 );
 export const boxFitSchema = SchemaGenerator.fromEnum(BoxFit).describe(
   'Box fit must be one of: contain, cover, fill, fitWidth, fitHeight, none, scaleDown',
+);
+export const mainAxisAlignmentSchema = SchemaGenerator.fromEnum(MainAxisAlignment).describe(
+  'Main axis alignment must be one of: start, end, center, spaceBetween, spaceAround, spaceEvenly',
+);
+export const crossAxisAlignmentSchema = SchemaGenerator.fromEnum(CrossAxisAlignment).describe(
+  'Cross axis alignment must be one of: start, end, center, stretch, baseline',
 );
 export const materialIconSchema = SchemaGenerator.fromEnum(MaterialIcon);
 export const materialColorSchema = SchemaGenerator.fromEnum(MaterialColor);
