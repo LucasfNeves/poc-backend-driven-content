@@ -1,9 +1,12 @@
 export const tokens = {
   colors: {
     white: 0xffffffff,
-    darkGray: 0xff333333,
-    primary: 0xff2196f3,
-    secondary: 0xffff5722,
+    darkGray: 0xff323241,
+    primary: 0xffc31900,
+    secondary: 0xfff3f3f3,
+    textPrimary: 0xff3c3c3c,
+    textSecondary: 0xff676767,
+    secondaryYellow: 0xfffff6db,
   },
   fontSize: {
     small: 12,
@@ -12,9 +15,9 @@ export const tokens = {
     xlarge: 24,
   },
   iconSize: {
-    small: 16,
-    medium: 20,
-    large: 24,
+    small: 24,
+    medium: 32,
+    large: 48,
   },
   elevation: {
     none: 0,
