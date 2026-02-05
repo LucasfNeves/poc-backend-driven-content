@@ -3,7 +3,6 @@ import { colorSchema, fontWeightSchema } from './schemaBaseEnums';
 
 export const textComponentSchema = z.object({
   type: z.literal('text'),
-  id: z.string().optional(),
   data: z.string().min(1, 'Text data is required'),
   style: z
     .object({
@@ -13,3 +12,5 @@ export const textComponentSchema = z.object({
     })
     .optional(),
 });
+
+export type TextComponentSchema = z.infer<typeof textComponentSchema>;

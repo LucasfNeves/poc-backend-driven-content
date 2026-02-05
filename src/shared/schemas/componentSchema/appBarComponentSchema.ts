@@ -6,7 +6,6 @@ import { iconButtonComponentSchema } from './iconButtonComponentSchema';
 
 export const appBarComponentSchema = z.object({
   type: z.literal('appBar'),
-  id: z.string().optional(),
   title: z.union([textComponentSchema, imageComponentSchema]).optional(),
   backgroundColor: colorSchema.optional(),
   foregroundColor: colorSchema.optional(),

@@ -3,7 +3,6 @@ import { iconComponentSchema } from './iconComponentSchema';
 
 export const iconButtonComponentSchema = z.object({
   type: z.literal('iconButton'),
-  id: z.string().optional(),
   icon: iconComponentSchema,
   onPressed: z
     .object({
@@ -13,3 +12,5 @@ export const iconButtonComponentSchema = z.object({
     })
     .optional(),
 });
+
+export type IconButtonComponentSchema = z.infer<typeof iconButtonComponentSchema>;
