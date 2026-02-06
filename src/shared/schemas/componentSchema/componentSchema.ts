@@ -12,19 +12,21 @@ import { containerComponentSchema } from './containerComponentSchema';
 import { paddingComponentSchema } from './paddingComponentSchema';
 import { scaffoldComponentSchema } from './scaffoldComponentSchema';
 
-export const componentSchema: z.ZodTypeAny = z.discriminatedUnion('type', [
-  textComponentSchema,
-  iconComponentSchema,
-  imageComponentSchema,
-  iconButtonComponentSchema,
-  appBarComponentSchema,
-  sizedBoxComponentSchema,
-  spacerComponentSchema,
-  columnComponentSchema,
-  rowComponentSchema,
-  containerComponentSchema,
-  paddingComponentSchema,
-  scaffoldComponentSchema,
-]);
+export const componentSchema: z.ZodTypeAny = z.lazy(() =>
+  z.discriminatedUnion('type', [
+    textComponentSchema,
+    iconComponentSchema,
+    imageComponentSchema,
+    iconButtonComponentSchema,
+    appBarComponentSchema,
+    sizedBoxComponentSchema,
+    spacerComponentSchema,
+    columnComponentSchema,
+    rowComponentSchema,
+    containerComponentSchema,
+    paddingComponentSchema,
+    scaffoldComponentSchema,
+  ]),
+);
 
 export type ValidatedComponent = z.infer<typeof componentSchema>;
